@@ -18,6 +18,25 @@ VALUE ruby_dln_librefs;
 #define IS_DLEXT(e) (strcmp((e), DLEXT) == 0)
 #endif
 
+static const char *const all_ext[] = {
+    "", ".rb", ".so", ".o", DLEXT,
+#ifdef DLEXT2
+    DLEXT2,
+#endif
+    0
+};
+
+static const char *const sodl_ext[] = {
+    ".so", ".o", DLEXT,
+#ifdef DLEXT2
+    DLEXT2,
+#endif
+    0
+};
+
+static const char *const rb_ext[] = {
+    ".rb", 0
+};
 
 static const char *const loadable_ext[] = {
     ".rb", DLEXT,
@@ -61,6 +80,12 @@ static VALUE
 get_loaded_features(void)
 {
     return GET_VM()->loaded_features;
+}
+
+static VALUE
+get_loaded_features_index(void)
+{
+    return GET_VM()->loaded_features_index;
 }
 
 static st_table *
@@ -141,8 +166,8 @@ loaded_feature_path_i(st_data_t v, st_data_t b, st_data_t f)
 static int
 rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
 {
-    VALUE v, features, p, load_path = 0;
-    const char *f, *e;
+    VALUE v, features, features_index, p, load_path = 0;
+    const char *f, *e, *const *exts;
     long i, len, elen, n;
     st_table *loading_tbl;
     st_data_t data;
@@ -160,6 +185,7 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
 	type = 0;
     }
     features = get_loaded_features();
+    features_index = get_loaded_features_index();
     for (i = 0; i < RARRAY_LEN(features); ++i) {
         /* This loop searches `features` for an entry such that either
              "#{features[i]}" == "#{load_path[j]}/#{feature}#{e}"
@@ -178,6 +204,8 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
            After a "distractor" entry of this form, only entries of the
            form "#{feature}#{e}" are accepted.
 	*/
+        if (expanded)
+            break;
 	v = RARRAY_PTR(features)[i];
 	f = StringValuePtr(v);
 	if ((n = RSTRING_LEN(v)) < len) continue;
@@ -201,6 +229,46 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
 	    return 'r';
 	}
     }
+    if (i < RARRAY_LEN(features)) {
+	int first_match, j, k;
+	const char *match_ext;
+	if (!ext) {
+	    exts = all_ext;
+	} else if (!rb) {
+	    exts = sodl_ext;
+	} else {
+	    exts = rb_ext;
+	}
+	first_match = INT_MAX;
+	for (j = 0; exts[j]; j++) {
+	    VALUE feature_key, this_feature_index;
+	    feature_key = rb_str_new(feature, len);
+	    rb_str_cat2(feature_key, exts[j]);
+	    this_feature_index = rb_hash_lookup(features_index, feature_key);
+	    if (this_feature_index == Qnil)
+		continue;
+	    for (k = 0; k < RARRAY_LEN(this_feature_index); k++) {
+		int index_value = FIX2INT(rb_ary_entry(this_feature_index, k));
+		if (index_value < i)
+		    continue;
+		if (index_value < first_match) {
+		    first_match = index_value;
+		    match_ext = exts[j];
+		}
+		break;
+	    }
+	}
+	if (first_match < INT_MAX) {
+	    if (!*match_ext) {
+		return 'u';
+	    } else if (!strcmp(match_ext, ".rb")) {
+		return 'r';
+	    } else {
+		return 's';
+	    }
+	}
+    }
+
     loading_tbl = get_loading_table();
     if (loading_tbl) {
 	f = 0;
@@ -280,11 +348,38 @@ rb_feature_provided(const char *feature, const char **loading)
 static void
 rb_provide_feature(VALUE feature)
 {
-    if (OBJ_FROZEN(get_loaded_features())) {
+    VALUE features, features_index, this_feature_index, short_feature;
+    const char *feature_str;
+    int feature_len, i;
+
+    features = get_loaded_features();
+    if (OBJ_FROZEN(features)) {
 	rb_raise(rb_eRuntimeError,
 		 "$LOADED_FEATURES is frozen; cannot append feature");
     }
-    rb_ary_push(get_loaded_features(), feature);
+    rb_ary_push(features, feature);
+
+    /* This function maintains the following invariant: every
+       appearance of `feature` in `get_loaded_features()` can be found
+       in the array returned by `rb_hash_lookup(get_loaded_features_index(), f)`,
+       where `f` is `feature` with any extension from `all_exts` stripped off,
+       including the empty string.
+     */
+    feature_str = StringValuePtr(feature);
+    feature_len = RSTRING_LEN(feature);
+    features_index = get_loaded_features_index();
+    for (i = 0; all_ext[i]; i++) {
+	long ext_len = strlen(all_ext[i]);
+	if (feature_len >= ext_len
+	    && !strcmp(all_ext[i], feature_str + feature_len - ext_len)) {
+	    short_feature = rb_str_substr(feature, 0, feature_len - ext_len);
+	    if ((this_feature_index = rb_hash_lookup(features_index, short_feature)) == Qnil) {
+		this_feature_index = rb_ary_new();
+		rb_hash_aset(features_index, short_feature, this_feature_index);
+	    }
+	    rb_ary_push(this_feature_index, INT2FIX(RARRAY_LEN(features)-1));
+	}
+    }
 }
 
 void
@@ -825,6 +920,7 @@ Init_load()
     rb_define_virtual_variable("$\"", get_loaded_features, 0);
     rb_define_virtual_variable("$LOADED_FEATURES", get_loaded_features, 0);
     vm->loaded_features = rb_ary_new();
+    vm->loaded_features_index = rb_hash_new();
 
     rb_define_global_function("load", rb_f_load, -1);
     rb_define_global_function("require", rb_f_require, 1);
