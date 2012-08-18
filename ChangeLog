@@ -1,3 +1,21 @@
+Tue Sep  4 14:15:18 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_feature_p, rb_provide_feature, et al.):
+	  index $LOADED_FEATURES so that require isn't so slow.
+
+	* load.c (rb_provide_feature, get_loaded_features_index): ensure
+	  that $LOADED_FEATURES entries are frozen strings.  The user
+	  must mutate $LOADED_FEATURES itself rather than its individual
+	  entries.
+
+	* vm_core.h (rb_vm_struct): add fields.
+
+	* vm.c (rb_vm_mark): mark new fields.
+
+	* include/ruby/intern.h (rb_hash_clear): declare function.
+
+	* hash.c (rb_hash_clear): make function non-static.
+
 Tue Sep  4 14:16:52 2012  Greg Price  <price@mit.edu>
 
 	* array.c (rb_ary_shared_with_p): new function.
