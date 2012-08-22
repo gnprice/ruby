@@ -1,3 +1,9 @@
+Tue Sep  4 14:16:52 2012  Greg Price  <price@mit.edu>
+
+	* array.c (rb_ary_shared_with_p): new function.
+
+	* include/ruby/intern.h (rb_ary_shared_with_p): declare.
+
 Tue Sep  4 14:15:18 2012  Greg Price  <price@mit.edu>
 
 	* include/ruby/intern.h (rb_hash_clear): declare function.
