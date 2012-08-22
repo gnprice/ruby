@@ -1103,7 +1103,7 @@ clear_i(VALUE key, VALUE value, VALUE dummy)
  *
  */
 
-static VALUE
+VALUE
 rb_hash_clear(VALUE hash)
 {
     rb_hash_modify_check(hash);
