@@ -1,3 +1,9 @@
+Tue Sep  4 14:05:05 2012  Greg Price  <price@mit.edu>
+
+	* load.c (loaded_feature_path): clarify and briefly comment
+	  function.  These clarifications have no effect on the behavior
+	  of the function.
+
 Fri Sep  7 01:21:51 2012  Nobuyoshi Nakada  <nobu@ruby-lang.org>
 
 	* ext/extmk.rb (extmake), lib/mkmf.rb (have_framework): fix splitting

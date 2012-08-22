@@ -69,6 +69,16 @@ get_loading_table(void)
     return GET_VM()->loading_table;
 }
 
+/* This searches `load_path` for a value such that
+     name == "#{load_path[i]}/#{feature}"
+   if `feature` is a suffix of `name`, or otherwise
+     name == "#{load_path[i]}/#{feature}#{ext}"
+   for some string `ext`.  It returns `load_path[i].to_str` if found, else 0.
+
+   If type is 's', then the search succeeds only if IS_DLEXT(ext);
+   if 'r', then only if IS_RBEXT(ext); otherwise `ext` may be absent
+   or have any value matching `%r{^\.[^./]*$}`.
+*/
 static VALUE
 loaded_feature_path(const char *name, long vlen, const char *feature, long len,
 		    int type, VALUE load_path)
@@ -77,7 +87,7 @@ loaded_feature_path(const char *name, long vlen, const char *feature, long len,
     long plen;
     const char *e;
 
-    if(vlen < len) return 0;
+    if(vlen < len+1) return 0;
     if (!strncmp(name+(vlen-len),feature,len)){
 	plen = vlen - len - 1;
     } else {
@@ -88,23 +98,22 @@ loaded_feature_path(const char *name, long vlen, const char *feature, long len,
 	    return 0;
 	plen = e - name - len - 1;
     }
+    if (type == 's' && !IS_DLEXT(&name[plen+len+1])
+     || type == 'r' && !IS_RBEXT(&name[plen+len+1])
+     || name[plen] != '/') {
+	return 0;
+    }
+    /* Now name == "#{prefix}/#{feature}#{ext}" where ext is acceptable
+       (possibly empty) and prefix is some string, whose length is plen. */
+
     for (i = 0; i < RARRAY_LEN(load_path); ++i) {
 	VALUE p = RARRAY_PTR(load_path)[i];
 	const char *s = StringValuePtr(p);
 	long n = RSTRING_LEN(p);
 
-	if (n != plen ) continue;
-	if (n && (strncmp(name, s, n) || name[n] != '/')) continue;
-	switch (type) {
-	  case 's':
-	    if (IS_DLEXT(&name[n+len+1])) return p;
-	    break;
-	  case 'r':
-	    if (IS_RBEXT(&name[n+len+1])) return p;
-	    break;
-	  default:
-	    return p;
-	}
+	if (n != plen) continue;
+	if (n && strncmp(name, s, n)) continue;
+	return p;
     }
     return 0;
 }
