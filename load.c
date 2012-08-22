@@ -82,8 +82,15 @@ get_loaded_features(void)
     return GET_VM()->loaded_features;
 }
 
+static void
+reset_loaded_features_snapshot(void)
+{
+    rb_vm_t *vm = GET_VM();
+    rb_ary_replace(vm->loaded_features_snapshot, vm->loaded_features);
+}
+
 static VALUE
-get_loaded_features_index(void)
+get_loaded_features_index_raw(void)
 {
     return GET_VM()->loaded_features_index;
 }
@@ -92,6 +99,50 @@ static st_table *
 get_loading_table(void)
 {
     return GET_VM()->loading_table;
+}
+
+static void
+features_index_add(VALUE feature, VALUE offset)
+{
+    VALUE features_index, this_feature_index, short_feature;
+    const char *feature_str;
+    int feature_len, i;
+
+    feature_str = StringValuePtr(feature);
+    feature_len = RSTRING_LEN(feature);
+    features_index = get_loaded_features_index_raw();
+    for (i = 0; all_ext[i]; i++) {
+	long ext_len = strlen(all_ext[i]);
+	if (feature_len >= ext_len
+	    && !strcmp(all_ext[i], feature_str + feature_len - ext_len)) {
+	    short_feature = rb_str_substr(feature, 0, feature_len - ext_len);
+	    if ((this_feature_index = rb_hash_lookup(features_index, short_feature)) == Qnil) {
+		this_feature_index = rb_ary_new();
+		rb_hash_aset(features_index, short_feature, this_feature_index);
+	    }
+	    rb_ary_push(this_feature_index, offset);
+	}
+    }
+}
+
+static VALUE
+get_loaded_features_index(void)
+{
+    VALUE features;
+    int i;
+    rb_vm_t *vm = GET_VM();
+
+    if (!rb_ary_shared_with_p(vm->loaded_features_snapshot, vm->loaded_features)) {
+        /* The sharing was broken; something (other than us in rb_provide_feature())
+           modified loaded_features.  Rebuild the index. */
+        rb_hash_clear(vm->loaded_features_index);
+        features = vm->loaded_features;
+        fprintf(stderr, "Rebuilding loaded-features index (%ld features)\n", RARRAY_LEN(features));
+        for (i = 0; i < RARRAY_LEN(features); i++)
+            features_index_add(rb_ary_entry(features, i), INT2FIX(i));
+        reset_loaded_features_snapshot();
+    }
+    return vm->loaded_features_index;
 }
 
 /* This searches `load_path` for a value such that
@@ -348,9 +399,7 @@ rb_feature_provided(const char *feature, const char **loading)
 static void
 rb_provide_feature(VALUE feature)
 {
-    VALUE features, features_index, this_feature_index, short_feature;
-    const char *feature_str;
-    int feature_len, i;
+    VALUE features;
 
     features = get_loaded_features();
     if (OBJ_FROZEN(features)) {
@@ -365,21 +414,8 @@ rb_provide_feature(VALUE feature)
        where `f` is `feature` with any extension from `all_exts` stripped off,
        including the empty string.
      */
-    feature_str = StringValuePtr(feature);
-    feature_len = RSTRING_LEN(feature);
-    features_index = get_loaded_features_index();
-    for (i = 0; all_ext[i]; i++) {
-	long ext_len = strlen(all_ext[i]);
-	if (feature_len >= ext_len
-	    && !strcmp(all_ext[i], feature_str + feature_len - ext_len)) {
-	    short_feature = rb_str_substr(feature, 0, feature_len - ext_len);
-	    if ((this_feature_index = rb_hash_lookup(features_index, short_feature)) == Qnil) {
-		this_feature_index = rb_ary_new();
-		rb_hash_aset(features_index, short_feature, this_feature_index);
-	    }
-	    rb_ary_push(this_feature_index, INT2FIX(RARRAY_LEN(features)-1));
-	}
-    }
+    features_index_add(feature, INT2FIX(RARRAY_LEN(features)-1));
+    reset_loaded_features_snapshot();
 }
 
 void
@@ -920,6 +956,7 @@ Init_load()
     rb_define_virtual_variable("$\"", get_loaded_features, 0);
     rb_define_virtual_variable("$LOADED_FEATURES", get_loaded_features, 0);
     vm->loaded_features = rb_ary_new();
+    vm->loaded_features_snapshot = rb_ary_new();
     vm->loaded_features_index = rb_hash_new();
 
     rb_define_global_function("load", rb_f_load, -1);
