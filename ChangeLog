@@ -1,3 +1,9 @@
+Tue Sep  4 14:05:05 2012  Greg Price  <price@mit.edu>
+
+	* load.c (loaded_feature_path): clarify and briefly comment
+	  function.  These clarifications have no effect on the behavior
+	  of the function.
+
 Thu Jun 21 21:16:58 2012  Tanaka Akira  <akr@fsij.org>
 
 	* process.c (rb_execarg_addopt): take a VALUE argument instead of
