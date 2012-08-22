@@ -404,6 +404,7 @@ VALUE rb_hash_lookup(VALUE, VALUE);
 VALUE rb_hash_lookup2(VALUE, VALUE, VALUE);
 VALUE rb_hash_fetch(VALUE, VALUE);
 VALUE rb_hash_aset(VALUE, VALUE, VALUE);
+VALUE rb_hash_clear(VALUE);
 VALUE rb_hash_delete_if(VALUE);
 VALUE rb_hash_delete(VALUE,VALUE);
 struct st_table *rb_hash_tbl(VALUE);
