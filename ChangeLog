@@ -1,3 +1,13 @@
+Tue Sep  4 14:13:51 2012  Greg Price  <price@mit.edu>
+
+	* load.c (loaded_feature_path): clarify and briefly comment
+	  function.  These clarifications have no effect on the behavior
+	  of the function.
+
+	* load.c (rb_feature_p): explain the search loop.  Especially
+	  useful because the logic is complicated as described in the
+	  second paragraph.
+
 Fri Apr 20 08:30:55 2012  Eric Hodel  <drbrain@segment7.net>
 
 	* lib/rubygems:  Update to RubyGems 1.8.23 which contains security
