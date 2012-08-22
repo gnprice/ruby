@@ -306,6 +306,37 @@ rb_ary_frozen_p(VALUE ary)
 }
 
 static VALUE
+rb_ary_shared_p(VALUE ary)
+{
+    if (ARY_SHARED_P(ary)) return Qtrue;
+    return Qfalse;
+}
+
+static VALUE
+rb_ary_info(VALUE ary)
+{
+    VALUE ret = rb_ary_new();
+    rb_ary_push(ret, INT2FIX(ARY_EMBED_P(ary)));
+    rb_ary_push(ret, INT2FIX(ARY_SHARED_P(ary)));
+    rb_ary_push(ret, INT2FIX(ARY_SHARED_ROOT_P(ary)));
+    rb_ary_push(ret, INT2FIX(RBASIC(ary)->flags));
+    rb_ary_push(ret, LONG2NUM(ary));
+    rb_ary_push(ret, LONG2NUM(RARRAY(ary)->as.heap.aux.shared));
+    return ret;
+}
+
+VALUE
+rb_ary_shared_with_p(VALUE ary1, VALUE ary2)
+{
+    if (!ARY_EMBED_P(ary1) && ARY_SHARED_P(ary1)
+     && !ARY_EMBED_P(ary2) && ARY_SHARED_P(ary2)
+     && RARRAY(ary1)->as.heap.aux.shared == RARRAY(ary2)->as.heap.aux.shared) {
+	return Qtrue;
+    }
+    return Qfalse;
+}
+
+static VALUE
 ary_alloc(VALUE klass)
 {
     NEWOBJ(ary, struct RArray);
@@ -5049,6 +5080,11 @@ Init_Array(void)
     rb_define_method(rb_cArray, "to_a", rb_ary_to_a, 0);
     rb_define_method(rb_cArray, "to_ary", rb_ary_to_ary_m, 0);
     rb_define_method(rb_cArray, "frozen?",  rb_ary_frozen_p, 0);
+
+    rb_define_method(rb_cArray, "shared?", rb_ary_shared_p, 0);
+    rb_define_method(rb_cArray, "info", rb_ary_info, 0);
+    rb_define_method(rb_cArray, "shared_with?", rb_ary_shared_with_p, 1);
+    /*    rb_define_method(rb_cArray, "snapshot", rb_ary_snapshot, 0); */
 
     rb_define_method(rb_cArray, "==", rb_ary_equal, 1);
     rb_define_method(rb_cArray, "eql?", rb_ary_eql, 1);
