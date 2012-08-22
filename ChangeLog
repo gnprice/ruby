@@ -1,3 +1,9 @@
+Tue Sep  4 14:15:18 2012  Greg Price  <price@mit.edu>
+
+	* include/ruby/intern.h (rb_hash_clear): declare function.
+
+	* hash.c (rb_hash_clear): make function non-static.
+
 Tue Sep  4 14:22:48 2012  Greg Price  <price@mit.edu>
 
 	* load.c (rb_get_expanded_load_path): cache the expanded load
