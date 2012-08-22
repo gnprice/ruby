@@ -46,6 +46,7 @@ VALUE rb_ary_new4(long, const VALUE *);
 VALUE rb_ary_tmp_new(long);
 void rb_ary_free(VALUE);
 VALUE rb_ary_freeze(VALUE);
+VALUE rb_ary_shared_with_p(VALUE, VALUE);
 VALUE rb_ary_aref(int, VALUE*, VALUE);
 VALUE rb_ary_subseq(VALUE, long, long);
 void rb_ary_store(VALUE, long, VALUE);
