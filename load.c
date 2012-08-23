@@ -267,7 +267,8 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
     feature_val = rb_str_new(feature, len);
     this_feature_index = rb_hash_lookup(features_index, feature_val);
     for (i = 0; this_feature_index != Qnil && i < RARRAY_LEN(this_feature_index); i++) {
-	v = RARRAY_PTR(features)[i];
+        long index = FIX2LONG(rb_ary_entry(this_feature_index, i));
+	v = RARRAY_PTR(features)[index];
 	f = StringValuePtr(v);
 	if ((n = RSTRING_LEN(v)) < len) continue;
 	if (strncmp(f, feature, len) != 0) {
