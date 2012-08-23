@@ -102,26 +102,53 @@ get_loading_table(void)
 }
 
 static void
-features_index_add(VALUE feature, VALUE offset)
+features_index_add_single(VALUE short_feature, VALUE offset)
 {
-    VALUE features_index, this_feature_index, short_feature;
-    const char *feature_str;
-    int feature_len, i;
-
-    feature_str = StringValuePtr(feature);
-    feature_len = RSTRING_LEN(feature);
+    VALUE features_index, this_feature_index;
     features_index = get_loaded_features_index_raw();
-    for (i = 0; all_ext[i]; i++) {
-	long ext_len = strlen(all_ext[i]);
-	if (feature_len >= ext_len
-	    && !strcmp(all_ext[i], feature_str + feature_len - ext_len)) {
-	    short_feature = rb_str_substr(feature, 0, feature_len - ext_len);
-	    if ((this_feature_index = rb_hash_lookup(features_index, short_feature)) == Qnil) {
-		this_feature_index = rb_ary_new();
-		rb_hash_aset(features_index, short_feature, this_feature_index);
-	    }
-	    rb_ary_push(this_feature_index, offset);
-	}
+    if ((this_feature_index = rb_hash_lookup(features_index, short_feature)) == Qnil) {
+        this_feature_index = rb_ary_new();
+        rb_hash_aset(features_index, short_feature, this_feature_index);
+    }
+    rb_ary_push(this_feature_index, offset);
+}
+
+static void
+features_index_add(VALUE feature_, VALUE offset)
+{
+    value feature, short_feature;
+    const char *feature_str, *feature_end, *ext, *p;
+    int i;
+
+    feature = feature_;
+    feature_str = StringValuePtr(feature);
+    feature_end = feature_str + RSTRING_LEN(feature);
+
+    for (ext = feature_end; ext > feature_str; ext--)
+      if (*ext == '.' || *ext == '/')
+        break;
+    if (*ext != '.')
+      ext = NULL;
+    /* Now the string at ext matches /^\.[^./]*$/, unless ext is NULL. */
+
+    p = (ext || feature_end);
+    while (1) {
+        p--;
+        while (p >= feature_str && *p != '/')
+            p--;
+        if (p < feature_str)
+            break;
+        short_feature = rb_str_substr(feature, p + 1, feature_end - p - 1);
+        features_index_add_single(short_feature, offset);
+        if (ext) {
+            short_feature = rb_str_substr(feature, p + 1, ext - p - 1);
+            features_index_add_single(short_feature, offset);
+        }
+    }
+    features_index_add_single(feature, offset);
+    if (ext) {
+        short_feature = rb_str_substr(feature, 0, ext - feature);
+        features_index_add_single(short_feature, offset);
     }
 }
 
@@ -217,8 +244,8 @@ loaded_feature_path_i(st_data_t v, st_data_t b, st_data_t f)
 static int
 rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
 {
-    VALUE v, features, features_index, p, load_path = 0;
-    const char *f, *e, *const *exts;
+    VALUE features, features_index, feature_val, this_feature_index, v, p, load_path = 0;
+    const char *f, *e;
     long i, len, elen, n;
     st_table *loading_tbl;
     st_data_t data;
@@ -237,26 +264,10 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
     }
     features = get_loaded_features();
     features_index = get_loaded_features_index();
-    for (i = 0; i < RARRAY_LEN(features); ++i) {
-        /* This loop searches `features` for an entry such that either
-             "#{features[i]}" == "#{load_path[j]}/#{feature}#{e}"
-           for some j, or
-             "#{features[i]}" == "#{feature}#{e}"
-           Here `e` is one of all_ext (including the empty string); if
-           `ext && rb` then it must be one of rb_ext, i.e. ".rb",
-           and if `ext && !rb` then it must be one of sodl_ext.
 
-           If `expanded`, then only the latter form is accepted.
-           Otherwise either form is accepted, *unless* `ext` is false
-           and an otherwise-matching entry of the first form is
-           preceded by an entry of the form
-             "#{features[i2]}" == "#{load_path[j2]}/#{feature}#{e2}"
-           where `e2` matches /^\.[^./]*$/ but does not belong to all_ext.
-           After a "distractor" entry of this form, only entries of the
-           form "#{feature}#{e}" are accepted.
-	*/
-        if (expanded)
-            break;
+    feature_val = rb_str_new(feature, len);
+    this_feature_index = rb_hash_lookup(features_index, feature_val);
+    for (i = 0; i < RARRAY_LEN(this_feature_index); i++) {
 	v = RARRAY_PTR(features)[i];
 	f = StringValuePtr(v);
 	if ((n = RSTRING_LEN(v)) < len) continue;
@@ -280,45 +291,23 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
 	    return 'r';
 	}
     }
-    if (i < RARRAY_LEN(features)) {
-	int first_match, j, k;
-	const char *match_ext;
-	if (!ext) {
-	    exts = all_ext;
-	} else if (!rb) {
-	    exts = sodl_ext;
-	} else {
-	    exts = rb_ext;
-	}
-	first_match = INT_MAX;
-	for (j = 0; exts[j]; j++) {
-	    VALUE feature_key, this_feature_index;
-	    feature_key = rb_str_new(feature, len);
-	    rb_str_cat2(feature_key, exts[j]);
-	    this_feature_index = rb_hash_lookup(features_index, feature_key);
-	    if (this_feature_index == Qnil)
-		continue;
-	    for (k = 0; k < RARRAY_LEN(this_feature_index); k++) {
-		int index_value = FIX2INT(rb_ary_entry(this_feature_index, k));
-		if (index_value < i)
-		    continue;
-		if (index_value < first_match) {
-		    first_match = index_value;
-		    match_ext = exts[j];
-		}
-		break;
-	    }
-	}
-	if (first_match < INT_MAX) {
-	    if (!*match_ext) {
-		return 'u';
-	    } else if (!strcmp(match_ext, ".rb")) {
-		return 'r';
-	    } else {
-		return 's';
-	    }
-	}
-    }
+        /* This loop searches `features` for an entry such that either
+             "#{features[i]}" == "#{load_path[j]}/#{feature}#{e}"
+           for some j, or
+             "#{features[i]}" == "#{feature}#{e}"
+           Here `e` is one of all_ext (including the empty string); if
+           `ext && rb` then it must be one of rb_ext, i.e. ".rb",
+           and if `ext && !rb` then it must be one of sodl_ext.
+
+           If `expanded`, then only the latter form is accepted.
+           Otherwise either form is accepted, *unless* `ext` is false
+           and an otherwise-matching entry of the first form is
+           preceded by an entry of the form
+             "#{features[i2]}" == "#{load_path[j2]}/#{feature}#{e2}"
+           where `e2` matches /^\.[^./]*$/ but does not belong to all_ext.
+           After a "distractor" entry of this form, only entries of the
+           form "#{feature}#{e}" are accepted.
+	*/
 
     loading_tbl = get_loading_table();
     if (loading_tbl) {
