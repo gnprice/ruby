@@ -1,3 +1,9 @@
+Tue Sep  4 14:13:51 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_feature_p): explain the search loop.  Especially
+	  useful because the logic is complicated as described in the
+	  second paragraph.
+
 Tue Sep  4 14:05:05 2012  Greg Price  <price@mit.edu>
 
 	* load.c (loaded_feature_path): clarify and briefly comment
