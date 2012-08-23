@@ -1,3 +1,9 @@
+Tue Sep  4 14:13:51 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_feature_p): explain the search loop.  Especially
+	  useful because the logic is complicated as described in the
+	  second paragraph.
+
 Sat Jul  9 19:25:02 2011  Yuki Sonoda (Yugui)  <yugui@yugui.jp>
 
 	* ext/tk/extconf.rb: I gave up to fix the build issue of ext/tk with Windows
