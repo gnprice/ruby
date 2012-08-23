@@ -116,9 +116,8 @@ features_index_add_single(VALUE short_feature, VALUE offset)
 static void
 features_index_add(VALUE feature_, VALUE offset)
 {
-    value feature, short_feature;
+    VALUE feature, short_feature;
     const char *feature_str, *feature_end, *ext, *p;
-    int i;
 
     feature = feature_;
     feature_str = StringValuePtr(feature);
@@ -131,23 +130,23 @@ features_index_add(VALUE feature_, VALUE offset)
       ext = NULL;
     /* Now the string at ext matches /^\.[^./]*$/, unless ext is NULL. */
 
-    p = (ext || feature_end);
+    p = ext ? ext : feature_end;
     while (1) {
         p--;
         while (p >= feature_str && *p != '/')
             p--;
         if (p < feature_str)
             break;
-        short_feature = rb_str_substr(feature, p + 1, feature_end - p - 1);
+        short_feature = rb_str_substr(feature, p + 1 - feature_str, feature_end - p - 1);
         features_index_add_single(short_feature, offset);
         if (ext) {
-            short_feature = rb_str_substr(feature, p + 1, ext - p - 1);
+            short_feature = rb_str_substr(feature, p + 1 - feature_str, ext - p - 1);
             features_index_add_single(short_feature, offset);
         }
     }
     features_index_add_single(feature, offset);
     if (ext) {
-        short_feature = rb_str_substr(feature, 0, ext - feature);
+        short_feature = rb_str_substr(feature, 0, ext - feature_str);
         features_index_add_single(short_feature, offset);
     }
 }
@@ -267,7 +266,7 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
 
     feature_val = rb_str_new(feature, len);
     this_feature_index = rb_hash_lookup(features_index, feature_val);
-    for (i = 0; i < RARRAY_LEN(this_feature_index); i++) {
+    for (i = 0; this_feature_index != Qnil && i < RARRAY_LEN(this_feature_index); i++) {
 	v = RARRAY_PTR(features)[i];
 	f = StringValuePtr(v);
 	if ((n = RSTRING_LEN(v)) < len) continue;
