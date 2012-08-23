@@ -161,6 +161,23 @@ rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const c
     }
     features = get_loaded_features();
     for (i = 0; i < RARRAY_LEN(features); ++i) {
+        /* This loop searches `features` for an entry such that either
+             "#{features[i]}" == "#{load_path[j]}/#{feature}#{e}"
+           for some j, or
+             "#{features[i]}" == "#{feature}#{e}"
+           Here `e` is one of all_ext (including the empty string); if
+           `ext && rb` then it must be one of rb_ext, i.e. ".rb",
+           and if `ext && !rb` then it must be one of sodl_ext.
+
+           If `expanded`, then only the latter form is accepted.
+           Otherwise either form is accepted, *unless* `ext` is false
+           and an otherwise-matching entry of the first form is
+           preceded by an entry of the form
+             "#{features[i2]}" == "#{load_path[j2]}/#{feature}#{e2}"
+           where `e2` matches /^\.[^./]*$/ but does not belong to all_ext.
+           After a "distractor" entry of this form, only entries of the
+           form "#{feature}#{e}" are accepted.
+	*/
 	v = RARRAY_PTR(features)[i];
 	f = StringValuePtr(v);
 	if ((n = RSTRING_LEN(v)) < len) continue;
