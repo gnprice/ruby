@@ -1,3 +1,9 @@
+Tue Sep  4 15:13:44 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_provide_feature): Take advantage of the
+	  previously-shared-array optimization by making $LOADED_FEATURES
+	  not shared (unless the user has done so) when we modify it.
+
 Tue Sep  4 14:36:32 2012  Greg Price  <price@mit.edu>
 
 	* array.c: optimize modifying an array that was once shared and no
