@@ -116,7 +116,7 @@ memfill(register VALUE *mem, register long size, register VALUE val)
 } while (0)
 
 #define ARY_CAPA(ary) (ARY_EMBED_P(ary) ? RARRAY_EMBED_LEN_MAX : \
-		       ARY_SHARED_ROOT_P(ary) ? RARRAY_LEN(ary) : RARRAY(ary)->as.heap.aux.capa)
+		       RARRAY(ary)->as.heap.aux.capa)
 #define ARY_SET_CAPA(ary, n) do { \
     assert(!ARY_EMBED_P(ary)); \
     assert(!ARY_SHARED_P(ary)); \
@@ -134,10 +134,10 @@ memfill(register VALUE *mem, register long size, register VALUE val)
 #define RARRAY_SHARED_ROOT_FLAG FL_USER5
 #define ARY_SHARED_ROOT_P(ary) (FL_TEST((ary), RARRAY_SHARED_ROOT_FLAG))
 #define ARY_SHARED_NUM(ary) \
-    (assert(ARY_SHARED_ROOT_P(ary)), RARRAY(ary)->as.heap.aux.capa)
+    (assert(ARY_SHARED_ROOT_P(ary)), RARRAY(ary)->as.heap.shared_num)
 #define ARY_SET_SHARED_NUM(ary, value) do { \
     assert(ARY_SHARED_ROOT_P(ary)); \
-    RARRAY(ary)->as.heap.aux.capa = (value); \
+    RARRAY(ary)->as.heap.shared_num = (value); \
 } while (0)
 #define FL_SET_SHARED_ROOT(ary) do { \
     assert(!ARY_EMBED_P(ary)); \
@@ -255,14 +255,21 @@ rb_ary_modify(VALUE ary)
     rb_ary_modify_check(ary);
     if (ARY_SHARED_P(ary)) {
         long len = RARRAY_LEN(ary);
+        VALUE shared = ARY_SHARED(ary);
         if (len <= RARRAY_EMBED_LEN_MAX) {
             VALUE *ptr = ARY_HEAP_PTR(ary);
-            VALUE shared = ARY_SHARED(ary);
             FL_UNSET_SHARED(ary);
             FL_SET_EMBED(ary);
             MEMCPY(ARY_EMBED_PTR(ary), ptr, VALUE, len);
             rb_ary_decrement_share(shared);
             ARY_SET_EMBED_LEN(ary, len);
+        }
+        else if (ARY_SHARED_NUM(shared) == 1) {
+            ARY_SET_LEN(ary, RARRAY_LEN(shared));
+            ARY_SET_PTR(ary, RARRAY_PTR(shared));
+            ARY_SET_CAPA(ary, ARY_CAPA(shared));
+	    rb_gc_force_recycle(shared);
+            FL_UNSET_SHARED(ary);
         }
         else {
             VALUE *ptr = ALLOC_N(VALUE, len);
@@ -458,6 +465,7 @@ ary_make_shared(VALUE ary)
 
         ARY_SET_LEN((VALUE)shared, RARRAY_LEN(ary));
         ARY_SET_PTR((VALUE)shared, RARRAY_PTR(ary));
+        ARY_SET_CAPA((VALUE)shared, ARY_CAPA(ary));
 	FL_SET_SHARED_ROOT(shared);
 	ARY_SET_SHARED_NUM((VALUE)shared, 1);
 	FL_SET_SHARED(ary);
