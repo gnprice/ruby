@@ -664,7 +664,7 @@ struct RString {
      (RSTRING(str)->as.heap.ptr + RSTRING(str)->as.heap.len))
 #define RSTRING_LENINT(str) rb_long2int(RSTRING_LEN(str))
 
-#define RARRAY_EMBED_LEN_MAX 3
+#define RARRAY_EMBED_LEN_MAX 3  /* should be 4, but some bug causes a segfault */
 struct RArray {
     struct RBasic basic;
     union {
@@ -674,6 +674,7 @@ struct RArray {
 		long capa;
 		VALUE shared;
 	    } aux;
+	    long shared_num;
 	    VALUE *ptr;
 	} heap;
 	VALUE ary[RARRAY_EMBED_LEN_MAX];

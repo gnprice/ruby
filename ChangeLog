@@ -1,3 +1,15 @@
+Tue Sep  4 14:36:32 2012  Greg Price  <price@mit.edu>
+
+	* array.c: optimize modifying an array that was once shared and no
+	  longer is.
+	  (rb_ary_modify): take over the memory rather than copying.
+	  (ARY_CAPA, ARY_SHARED_NUM, ARY_SET_SHARED_NUM, ary_make_shared):
+	  in shared-root arrays, remember the capacity of the allocated
+	  buffer.  This allows the optimization's benefit to be realized
+	  even if we lengthen the array, by preventing unnecessary reallocs.
+
+	* include/ruby/ruby.h (RArray) new field.
+
 Sat Sep  8 15:21:35 2012  Greg Price  <price@mit.edu>
 
 	* load.c (rb_construct_expanded_load_path): ensure that $LOAD_PATH
