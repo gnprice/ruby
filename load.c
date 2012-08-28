@@ -81,6 +81,13 @@ get_loaded_features(void)
 }
 
 static void
+clear_loaded_features_snapshot(void)
+{
+    rb_vm_t *vm = GET_VM();
+    rb_ary_replace(vm->loaded_features_snapshot, rb_ary_new());
+}
+
+static void
 reset_loaded_features_snapshot(void)
 {
     rb_vm_t *vm = GET_VM();
@@ -394,6 +401,8 @@ rb_provide_feature(VALUE feature)
     VALUE features;
     features = get_loaded_features();
     rb_str_freeze(feature);
+
+    clear_loaded_features_snapshot();
     rb_ary_push(features, feature);
     features_index_add(feature, INT2FIX(RARRAY_LEN(features)-1));
     reset_loaded_features_snapshot();
