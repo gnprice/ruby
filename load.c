@@ -83,6 +83,13 @@ get_loaded_features(void)
 }
 
 static void
+clear_loaded_features_snapshot(void)
+{
+    rb_vm_t *vm = GET_VM();
+    rb_ary_replace(vm->loaded_features_snapshot, rb_ary_new());
+}
+
+static void
 reset_loaded_features_snapshot(void)
 {
     rb_vm_t *vm = GET_VM();
@@ -405,6 +412,7 @@ rb_provide_feature(VALUE feature)
 {
     VALUE features;
 
+    clear_loaded_features_snapshot();
     features = get_loaded_features();
     if (OBJ_FROZEN(features)) {
 	rb_raise(rb_eRuntimeError,
