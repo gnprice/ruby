@@ -101,6 +101,19 @@ get_loading_table(void)
     return GET_VM()->loading_table;
 }
 
+static int count_features_index_add;
+static int count_features_index_add_hash_aset;
+
+static VALUE
+get_feature_stats(void)
+{
+  VALUE r;
+  r = rb_ary_new();
+  rb_ary_push(r, INT2FIX(count_features_index_add));
+  rb_ary_push(r, INT2FIX(count_features_index_add_hash_aset));
+  return r;
+}
+
 static void
 features_index_add_single(VALUE short_feature, VALUE offset)
 {
@@ -108,6 +121,7 @@ features_index_add_single(VALUE short_feature, VALUE offset)
     features_index = get_loaded_features_index_raw();
     if ((this_feature_index = rb_hash_lookup(features_index, short_feature)) == Qnil) {
         this_feature_index = rb_ary_new();
+        count_features_index_add_hash_aset++;
         rb_hash_aset(features_index, short_feature, this_feature_index);
     }
     rb_ary_push(this_feature_index, offset);
@@ -119,6 +133,7 @@ features_index_add(VALUE feature_, VALUE offset)
     VALUE feature, short_feature;
     const char *feature_str, *feature_end, *ext, *p;
 
+    count_features_index_add++;
     feature = feature_;
     feature_str = StringValuePtr(feature);
     feature_end = feature_str + RSTRING_LEN(feature);
@@ -947,6 +962,7 @@ Init_load()
     vm->loaded_features = rb_ary_new();
     vm->loaded_features_snapshot = rb_ary_new();
     vm->loaded_features_index = rb_hash_new();
+    rb_define_global_function("feature_stats", get_feature_stats, 0);
 
     rb_define_global_function("load", rb_f_load, -1);
     rb_define_global_function("require", rb_f_require, 1);
