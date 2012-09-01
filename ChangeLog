@@ -1,3 +1,10 @@
+Tue Sep  4 14:22:48 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_get_expanded_load_path): cache the expanded load
+	  path.  This saves 4KB of allocation and some stats for every
+	  element of the load path (so nearly a MB in my Rails app)
+	  on every require.
+
 Tue Sep  4 14:19:08 2012  Greg Price  <price@mit.edu>
 
 	* load.c (rb_feature_p, rb_provide_feature, et al.):
