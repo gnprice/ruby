@@ -799,6 +799,9 @@ static inline void *
 vm_malloc_fixup(rb_objspace_t *objspace, void *mem, size_t size)
 {
     malloc_increase += size;
+    if (objspace->profile.run && size >= 1024)
+      fprintf(stderr, "malloc: %5dB (total %7d since collection)\n",
+              size, malloc_increase);
 
 #if CALC_EXACT_MALLOC_SIZE
     objspace->malloc_params.allocated_size += size;
@@ -860,6 +863,9 @@ vm_xrealloc(rb_objspace_t *objspace, void *ptr, size_t size)
         }
     }
     malloc_increase += size;
+    if (objspace->profile.run && size >= 1024)
+      fprintf(stderr, "realloc: %4dB (total %7d since collection)\n",
+              size, malloc_increase);
 
 #if CALC_EXACT_MALLOC_SIZE
     objspace->malloc_params.allocated_size += size;
