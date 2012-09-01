@@ -3858,6 +3858,16 @@ gc_malloc_allocations(VALUE self)
 }
 #endif
 
+static VALUE
+gc_profile_status()
+{
+    rb_objspace_t *objspace = (&rb_objspace);
+    VALUE prof = rb_hash_new();
+    rb_hash_aset(prof, ID2SYM(rb_intern("ALLOCATE_INCREASE")), SIZET2NUM(malloc_increase));
+    return prof;
+}
+
+
 /*
  *  call-seq:
  *     GC::Profiler.raw_data -> [Hash, ...]
@@ -4078,6 +4088,7 @@ Init_GC(void)
     rb_define_singleton_method(rb_mProfiler, "enabled?", gc_profile_enable_get, 0);
     rb_define_singleton_method(rb_mProfiler, "enable", gc_profile_enable, 0);
     rb_define_singleton_method(rb_mProfiler, "raw_data", gc_profile_record_get, 0);
+    rb_define_singleton_method(rb_mProfiler, "status", gc_profile_status, 0);
     rb_define_singleton_method(rb_mProfiler, "disable", gc_profile_disable, 0);
     rb_define_singleton_method(rb_mProfiler, "clear", gc_profile_clear, 0);
     rb_define_singleton_method(rb_mProfiler, "result", gc_profile_result, 0);
