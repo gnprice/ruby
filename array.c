@@ -116,7 +116,7 @@ memfill(register VALUE *mem, register long size, register VALUE val)
 } while (0)
 
 #define ARY_CAPA(ary) (ARY_EMBED_P(ary) ? RARRAY_EMBED_LEN_MAX : \
-		       ARY_SHARED_ROOT_P(ary) ? RARRAY_LEN(ary) : RARRAY(ary)->as.heap.aux.capa)
+		       RARRAY(ary)->as.heap.aux.capa)
 #define ARY_SET_CAPA(ary, n) do { \
     assert(!ARY_EMBED_P(ary)); \
     assert(!ARY_SHARED_P(ary)); \
@@ -134,10 +134,10 @@ memfill(register VALUE *mem, register long size, register VALUE val)
 #define RARRAY_SHARED_ROOT_FLAG FL_USER5
 #define ARY_SHARED_ROOT_P(ary) (FL_TEST((ary), RARRAY_SHARED_ROOT_FLAG))
 #define ARY_SHARED_NUM(ary) \
-    (assert(ARY_SHARED_ROOT_P(ary)), RARRAY(ary)->as.heap.aux.capa)
+    (assert(ARY_SHARED_ROOT_P(ary)), RARRAY(ary)->as.heap.shared_num)
 #define ARY_SET_SHARED_NUM(ary, value) do { \
     assert(ARY_SHARED_ROOT_P(ary)); \
-    RARRAY(ary)->as.heap.aux.capa = (value); \
+    RARRAY(ary)->as.heap.shared_num = (value); \
 } while (0)
 #define FL_SET_SHARED_ROOT(ary) do { \
     assert(!ARY_EMBED_P(ary)); \
@@ -267,6 +267,7 @@ rb_ary_modify(VALUE ary)
         else if (ARY_SHARED_NUM(shared) == 1) {
             ARY_SET_LEN(ary, RARRAY_LEN(shared));
             ARY_SET_PTR(ary, RARRAY_PTR(shared));
+            ARY_SET_CAPA(ary, ARY_CAPA(shared));
             /* TODO properly gc shared */
 	    rb_gc_force_recycle(shared);
             FL_UNSET_SHARED(ary);
@@ -480,6 +481,7 @@ ary_make_shared(VALUE ary)
 
         ARY_SET_LEN((VALUE)shared, RARRAY_LEN(ary));
         ARY_SET_PTR((VALUE)shared, RARRAY_PTR(ary));
+        ARY_SET_CAPA((VALUE)shared, ARY_CAPA(ary));
 	FL_SET_SHARED_ROOT(shared);
 	ARY_SET_SHARED_NUM((VALUE)shared, 1);
 	FL_SET_SHARED(ary);
