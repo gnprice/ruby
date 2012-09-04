@@ -162,8 +162,15 @@ get_loaded_features_index(void)
 	   modified loaded_features.  Rebuild the index. */
 	rb_hash_clear(vm->loaded_features_index);
 	features = vm->loaded_features;
-	for (i = 0; i < RARRAY_LEN(features); i++)
-	    features_index_add(rb_ary_entry(features, i), INT2FIX(i));
+	for (i = 0; i < RARRAY_LEN(features); i++) {
+	    VALUE entry, as_str;
+	    as_str = entry = rb_ary_entry(features, i);
+	    StringValue(as_str);
+	    if (as_str != entry)
+		rb_ary_store(features, i, as_str);
+	    rb_str_freeze(as_str);
+	    features_index_add(as_str, INT2FIX(i));
+	}
 	reset_loaded_features_snapshot();
     }
     return vm->loaded_features_index;
@@ -402,6 +409,7 @@ rb_provide_feature(VALUE feature)
 	rb_raise(rb_eRuntimeError,
 		 "$LOADED_FEATURES is frozen; cannot append feature");
     }
+    rb_str_freeze(feature);
 
     rb_ary_push(features, feature);
     features_index_add(feature, INT2FIX(RARRAY_LEN(features)-1));
