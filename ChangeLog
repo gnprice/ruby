@@ -1,3 +1,10 @@
+Tue Sep  4 15:53:15 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_provide_feature, get_loaded_features_index): ensure
+	  that $LOADED_FEATURES entries are frozen strings.  The user
+	  must mutate $LOADED_FEATURES itself rather than its individual
+	  entries.  This completes the maintenance of the index.
+
 Tue Sep  4 14:19:08 2012  Greg Price  <price@mit.edu>
 
 	* load.c (rb_feature_p, rb_provide_feature, et al.):
