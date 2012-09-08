@@ -1,3 +1,10 @@
+Sat Sep  8 15:21:35 2012  Greg Price  <price@mit.edu>
+
+	* load.c (rb_construct_expanded_load_path): ensure that $LOAD_PATH
+	  entries are frozen strings.  The user must mutate $LOAD_PATH
+	  itself rather than its individual entries.  This completes the
+	  maintenance of the expanded_load_path cache.
+
 Tue Sep  4 14:22:48 2012  Greg Price  <price@mit.edu>
 
 	* load.c (rb_get_expanded_load_path): cache the expanded load
