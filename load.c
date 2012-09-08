@@ -43,9 +43,15 @@ rb_construct_expanded_load_path(void)
 
     ary = rb_ary_new2(RARRAY_LEN(load_path));
     for (i = 0; i < RARRAY_LEN(load_path); ++i) {
-	VALUE path = rb_file_expand_path_fast(RARRAY_PTR(load_path)[i], Qnil);
-	rb_str_freeze(path);
-	rb_ary_push(ary, path);
+	VALUE path, as_str, expanded_path;
+	as_str = path = RARRAY_PTR(load_path)[i];
+	StringValue(as_str);
+	if (as_str != path)
+	    rb_ary_store(load_path, i, as_str);
+	rb_str_freeze(as_str);
+	expanded_path = rb_file_expand_path_fast(as_str, Qnil);
+	rb_str_freeze(expanded_path);
+	rb_ary_push(ary, expanded_path);
     }
     rb_obj_freeze(ary);
     vm->expanded_load_path = ary;
