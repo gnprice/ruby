@@ -255,14 +255,21 @@ rb_ary_modify(VALUE ary)
     rb_ary_modify_check(ary);
     if (ARY_SHARED_P(ary)) {
         long len = RARRAY_LEN(ary);
+        VALUE shared = ARY_SHARED(ary);
         if (len <= RARRAY_EMBED_LEN_MAX) {
             VALUE *ptr = ARY_HEAP_PTR(ary);
-            VALUE shared = ARY_SHARED(ary);
             FL_UNSET_SHARED(ary);
             FL_SET_EMBED(ary);
             MEMCPY(ARY_EMBED_PTR(ary), ptr, VALUE, len);
             rb_ary_decrement_share(shared);
             ARY_SET_EMBED_LEN(ary, len);
+        }
+        else if (ARY_SHARED_NUM(shared) == 1) {
+            ARY_SET_LEN(ary, RARRAY_LEN(shared));
+            ARY_SET_PTR(ary, RARRAY_PTR(shared));
+            ARY_SET_CAPA(ary, ARY_CAPA(shared));
+	    rb_gc_force_recycle(shared);
+            FL_UNSET_SHARED(ary);
         }
         else {
             VALUE *ptr = ALLOC_N(VALUE, len);
