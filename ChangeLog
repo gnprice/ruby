@@ -1,3 +1,8 @@
+Mon Sep 10 10:28:36 2012  Greg Price  <price@mit.edu>
+
+	* ruby.c (process_options): modify $LOAD_PATH directly rather than
+	  its elements, which will be frozen in the next commit
+
 Tue Sep  4 14:22:48 2012  Greg Price  <price@mit.edu>
 
 	* load.c (rb_get_expanded_load_path): cache the expanded load
