@@ -249,5 +249,7 @@ Hello again.  Benchmarking.
 
 tm () { label="$1"; shift; for i in {1..5}; do { time "$@"; } 2>&1; done | perl -lne 'BEGIN { @r = () }; if (/^real\s*(.*)/) { $_ = $1; s/^0m// or die "Big time"; s/s$//; push @r, $_; }; END { my @rs = sort @r; print ("'"$label"' $rs[0] | ".join(" ", @r)) }'; }
 
-
 git checkout $COMMIT && git clean -fxd && autoreconf && ./configure --prefix ~/lib/ruby-$(git describe --tags --always) && make -j12 install
+
+v=v1_9_2_290-8-g3d119ea; n=16000; tm $v ~/lib/ruby-$v/bin/ruby -I ../ruby-require-torture -e n=$n'; (1..n).each {|i| require "isolated/#{i}"}'
+
