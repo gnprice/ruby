@@ -1,0 +1,243 @@
+09-01 (starting notes, long after started work)
+
+Big allocations in requiring an empty file.
+Total of 10 4099-byte allocations, and one 8192-byte.
+That's 49182 bytes; there are 2500 or so bytes in <KiB allocs.
+
+  8192 (but then this isn't repeated on subsequent iterations)
+  #2  vm_xmalloc (objspace=0x80274dd8, size=<optimized out>) at gc.c:831
+  #3  0x800381d8 in io_binwrite (str=2151403120, 
+      ptr=0x803f1548 "{:ALLOCATE_INCREASE=>2469944}", len=29, fptr=0x802ee5f8, 
+      nosync=1) at io.c:1127
+  #4  0x80038514 in io_fwrite (nosync=1, fptr=0x802ee5f8, str=<optimized out>)
+      at io.c:1257
+  #5  io_write (io=<optimized out>, str=<optimized out>, nosync=1) at io.c:1294
+  #6  0x80043f9e in rb_p (obj=2151403260) at io.c:6715
+  #7  0x80043ff9 in rb_f_p (argc=1, argv=0xb78d9034, self=2150265340) at io.c:6749
+  #8  0x80133866 in call_cfunc (func=0x80043fc0 <rb_f_p>, recv=2150265340, len=-1, 
+      argc=1, argv=0xb78d9034) at vm_insnhelper.c:343
+  #9  0x8014316b in vm_call_cfunc (me=0x802eafd8, blockptr=0x0, recv=<optimized out>, 
+      num=1, reg_cfp=0xb7958f68, th=0xb78d9038) at vm_insnhelper.c:431
+  [...]
+
+  4099 x9 (which is the length of the load path)
+  #2  vm_xmalloc (objspace=0x80274dd8, size=<optimized out>) at gc.c:831
+  #3  0x800e19ae in str_new (klass=2150263800, ptr=0x0, len=4098) at string.c:395
+  #4  0x800e3cb7 in rb_str_new (len=4098, ptr=0x0) at string.c:417
+  #5  rb_usascii_str_new (ptr=0x0, len=4098) at string.c:418
+  #6  0x801a83c5 in rb_file_expand_path (fname=<optimized out>, dname=4)
+      at file.c:3244
+  #7  0x801a03bd in rb_get_expanded_load_path () at load.c:46
+  #8  0x801a06fd in rb_feature_p (feature=0x803bcdec "isolated/1", ext=0x0, rb=0, 
+      expanded=0, fn=0xbfffe6ac) at load.c:160
+  #9  0x801a0fc0 in search_required (safe_level=0, path=0xbfffe6a4, fname=2151402980)
+      at load.c:568
+  #10 rb_require_safe (fname=2151402980, safe=0) at load.c:628
+  #11 0x8013383c in call_cfunc (func=0x801a1610 <rb_f_require>, recv=2150265340, 
+      len=1, argc=1, argv=0xb78d9050) at vm_insnhelper.c:349
+  #12 0x8014316b in vm_call_cfunc (me=0x803edae0, blockptr=0x0, recv=<optimized out>, 
+      num=1, reg_cfp=0xb7958f40, th=0xb78d9054) at vm_insnhelper.c:431
+
+  4099
+  #2  vm_xmalloc (objspace=0x80274dd8, size=<optimized out>) at gc.c:831
+  #3  0x800e19ae in str_new (klass=0, ptr=0x0, len=4098) at string.c:395
+  #4  0x800e6f73 in rb_str_tmp_new (len=4098) at string.c:770
+  #5  0x801a96f3 in rb_find_file_ext_safe (filep=0xbfffe6a8, ext=0x80262420, 
+      safe_level=0) at file.c:5247
+  #6  0x801a0ff0 in search_required (safe_level=0, path=0xbfffe6a4, fname=2151402980)
+      at load.c:573
+  #7  rb_require_safe (fname=2151402980, safe=0) at load.c:628
+  #8  0x8013383c in call_cfunc (func=0x801a1610 <rb_f_require>, recv=2150265340, 
+      len=1, argc=1, argv=0xb78d9050) at vm_insnhelper.c:349
+  #9  0x8014316b in vm_call_cfunc (me=0x803edae0, blockptr=0x0, recv=<optimized out>, 
+      num=1, reg_cfp=0xb7958f40, th=0xb78d9054) at vm_insnhelper.c:431
+
+  8192
+  #2  vm_xmalloc (objspace=0x80274dd8, size=<optimized out>) at gc.c:831
+  #3  0x800308e2 in io_fillbuf (fptr=0x803fc990) at io.c:1557
+  #4  0x8003904e in rb_io_getline_fast (io=2151402420, enc=0x80277868, 
+      fptr=0x803fc990) at io.c:2788
+  #5  rb_io_getline_1 (rs=2150241400, limit=-1, io=2151402420) at io.c:2873
+  #6  0x8003c117 in rb_io_gets (io=2151402420) at io.c:2977
+  #7  0x800643f3 in lex_io_gets (parser=0x803fc8d0, io=2151402420) at parse.y:5489
+  #8  0x800808f6 in lex_getline (parser=0x803fc8d0) at parse.y:5419
+  #9  parser_nextc (parser=0x803fc8d0) at parse.y:5571
+  #10 parser_prepare (parser=0x803fc8d0) at parse.y:6747
+  #11 yycompile0 (arg=2151663824, tracing=0) at parse.y:5351
+  #12 0x8014b80b in thread_suppress_tracing (th=0x80274b70, ev=1, 
+      func=0x80080620 <yycompile0>, arg=2151663824, always=1) at thread.c:4519
+  #13 0x80155925 in ruby_suppress_tracing (func=0x80080620 <yycompile0>, 
+      arg=2151663824, always=1) at thread.c:4495
+  #14 0x8006b7c3 in yycompile (line=1, 
+      f=0x803fc898 "/home/greg/src/ruby-require-torture/isolated/1.rb", 
+      parser=0x803fc8d0) at parse.y:5382
+  #15 rb_parser_compile_file (vparser=2151402440, 
+      f=0x803fc898 "/home/greg/src/ruby-require-torture/isolated/1.rb", 
+      file=2151402420, start=1) at parse.y:5512
+  #16 0x800cc79f in load_file_internal (arg=3221218416) at ruby.c:1641
+  #17 0x8001a369 in rb_ensure (b_proc=0x800cc2e0 <load_file_internal>, 
+      data1=3221218416, e_proc=0x800ca270 <restore_lineno>, data2=1) at eval.c:821
+  #18 0x800cdd33 in load_file (opt=0xbfffe418, script=0, fname=2151402460, 
+      parser=<optimized out>) at ruby.c:1678
+  #19 rb_load_file (
+      fname=0x803fc7b0 "/home/greg/src/ruby-require-torture/isolated/1.rb")
+      at ruby.c:1687
+  #20 0x8019fb0d in rb_load_internal (fname=2151402540, wrap=0) at load.c:306
+  #21 0x801a130b in rb_require_safe (fname=2151402980, safe=0) at load.c:636
+  #22 0x8013383c in call_cfunc (func=0x801a1610 <rb_f_require>, recv=2150265340, 
+      len=1, argc=1, argv=0xb78d9050) at vm_insnhelper.c:349
+  #23 0x8014316b in vm_call_cfunc (me=0x803edae0, blockptr=0x0, recv=<optimized out>, 
+      num=1, reg_cfp=0xb7958f40, th=0xb78d9054) at vm_insnhelper.c:431
+
+(and then on to the same with "isolated/2")
+
+Fixed the nine allocations for load_path entries with another
+snapshot-protected cache.
+
+
+Now it turns out that the sequence
+  a = []; b = []; (1..1000).each {|i| a << i; b.replace a; b.replace [] }
+causes a realloc on each '<<'.  The reason is that when an array is made
+shared, we forget its capacity, because the shared-root array reuses the
+'capa' field to store its refcount.
+
+So, in normal usage we don't want the real loaded_features array to be made shared.
+(Short of fixing that issue.)
+
+So let's have three values:
+  loaded_features  // the real internal structure
+  loaded_features_exported  // what we've given the user
+  loaded_features_snapshot  // what we gave the user
+
+In normal usage these are
+  A   nil  nil
+After an export, they are
+  A    A'  nil
+
+... urgh, no, that won't do.  Consider code like this:
+  f = $LOADED_FEATURES
+  # ... lots of stuff ...
+  puts "There are #{f.size} features loaded.\n"
+I don't want to change semantics to break that, so after that
+early $LOADED_FEATURES query we have to keep the array it returned,
+i.e. 'f', matching our internal data structure.  And I don't want
+to just abandon this case for the optimization -- so I want to be fast
+even while keeping that match.
+
+Short of some other clever hack, I think that means I need to expose
+the internal data structure, and snapshot it as I currently do.  So
+let's fix the array code so that's efficient.
+
+
+09-03
+
+Todo after fast-require-v0.7.3:
+ . remove print (oops)
+ . freeze the load_path too
+ . run tests
+ * write some tests, probably
+ . backport to 1.9.2-p290
+ x figure out stupid RVM
+ . time our app
+.* time my benchmark systematically,
+   at various stages of the patchset
+.* write message
+ * submit
+
+
+09-07
+
+RVM is dumb, so trying to work without it.
+
+time ./configure --prefix /home/greg/lib/ruby-1.9.2-p290 && time make -j12 ruby && time make -j12 && time make -j12 install
+...
+
+prefix=~/lib/ruby-1.9.2-p290 && time PATH=$prefix/bin:$PATH gem install bundler && time PATH=$prefix/bin:$PATH bundle install
+
+# I don't understand the bug this works around, but it does
+sed -i 's/#<Syck::DefaultKey:[^>]*>/=/' $prefix/lib/ruby/gems/1.9.1/specifications/*
+
+# Nor this
+ln -s /usr/lib/i386-linux-gnu/libcurl.so.4 $prefix/lib/libcurl.so
+
+
+09-08
+
+Huh.  A puzzling installation failure I was seeing last night seems to
+be related to my commit 3d119ea "Optimize modifying a no-longer-shared array".
+Here's the bisection command line:
+
+v=$(git rev-parse HEAD); prefix=~/lib/ruby-$(git describe --tags HEAD); time { git checkout $v && git clean -fxd && autoconf && ./configure --prefix=$prefix && make -j12 ruby && make -j12 install-nodoc && ls -l $prefix/lib/ruby/1.9.1/; } 2>&1 | tee /tmp/log.$(git describe --tags HEAD); ls $prefix/lib/ruby/1.9.1/rubygems.rb
+
+(NB this is with install-nodoc, to avoid the doc-building issue.)
+
+Oh, odder:
+$ prefix=~/lib/ruby-1.9.2-p290-take4 && time PATH=$prefix/bin:$PATH gem install bundler
+<internal:lib/rubygems/custom_require>:29:in `require': no such file to load -- etc (LoadError)
+That prefix was installed with 'make install-nodoc'.
+
+Also with -take5, installed with 'make install'.  Now I wonder how my original ~/lib/ruby-1.9.2-p290 worked.
+v=v1_9_2_290; prefix=~/lib/ruby-1.9.2-p290-take5; time { git checkout $v && git clean -fxd && autoconf && ./configure --prefix=$prefix && make -j12 ruby && make -j12 install && ls -l $prefix/lib/ruby/1.9.1/; } 2>&1 | tee /tmp/log.$v; alert
+
+... And this works.
+v=v1_9_2_290; prefix=~/lib/ruby-1.9.2-p290-take6; time { git checkout $v && git clean -fxd && autoconf && ./configure --prefix=$prefix && make -j12 ruby && make -j12 && make -j12 install && ls -l $prefix/lib/ruby/1.9.1/; } 2>&1 | tee /tmp/log.$v; alert
+
+Well.  Let's face the doc-building issue.
+
+OK, 'git bisect run make -j12' says it's that same commit 3d119ea.
+
+And, splitting that into little pieces and doing another bisect
+fingers the change that actually optimizes in the
+ARY_SHARED_NUM(shared) == 1 case, where I've made that the last change
+in the series (after adding the shared_num field and using it.)
+And, that change causes the failure all on its own, without shared_num.
+
+Probably there's some case where we miscount shared_num.  That logic
+has a smell to it.  In particular, I suspect there is a case where we
+turn an array that other code actually knows about into a shared_root
+array, and then don't increment shared_num for itself.  Or something.
+
+
+
+SHARED ARRAYS
+=============
+
+The condition that rb_ary_modify checks (and takes action only if
+true) is ARY_SHARED_P; which checks the ELTS_SHARED flag; which is set
+(in array.c) just in FL_SET_SHARED and unset in FL_UNSET_SHARED; of
+which the former is called just in rb_ary_set_shared and
+ary_make_shared.  So when our optimization breaks a share,
+  * ary came through one of those two functions (and has not already
+    been unshared); and
+  * ARY_SHARED_NUM(ARY_SHARED(ary)) == 1.
+When that is a problem, either
+  * something has a reference to ARY_SHARED(ary) as an array, or
+  * something has an array ary2 with ARY_SHARED(ary2) == ARY_SHARED(ary), or
+  * something I'm not thinking of.
+
+
+
+09-09
+
+Oh, and why is expanding the load path so slow?  strace says it's not
+going and lstat'ing all those path components -- it's not trying to
+resolve symlinks or even make sure the directories exist.  The code
+(rb_file_expand_path_internal() in file.c) is a mess -- 341 lines, 152
+even after unifdef'ing the DOS extra-mess, full of ad-hoc
+locals-munging macros, virtually uncommented -- but it appears to
+ * do tilde-expansion;
+ * prefix non-absolute paths with the cwd;
+ * normalize .., ., and repeated /.
+No syscalls, except possibly as a result of allocation or getpwnam().
+
+So this really is slow just because the allocation drives the garbage collector.
+
+
+
+09-15
+
+Not really working on this at the moment (rather on my PyCon talk proposal),
+but here's a nice account of the benchmark suite the Rubinius folks made:
+  http://fwiw.heroku.com/articles/2011/05/26/rubiniuss-benchmark-suite/
+Should try it out -- hopefully one of them exercises 'require'.
+

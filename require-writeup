@@ -1,0 +1,118 @@
+
+require is slow in its bookkeeping
+
+Starting a complex Ruby application with many dependencies can be
+quite slow.  A large fraction of the time is spent not in actually
+reading the files, parsing them, or constructing classes and methods,
+but in the bookkeeping that the 'require' implementation performs in
+order to ensure we don't require the same thing twice.  This
+bookkeeping is much slower than it needs to be.  I've attached a patch
+series which makes it faster.  This patch series speeds up one large
+Rails application's startup by approximately 4x, and a pure-'require'
+benchmark by approximately 7x.
+
+The underlying problem was diagnosed last year before the 1.9.3
+release by Xavier Shay and discussed at TODO LINKS.  That discussion
+ended with a patch TODO BY which sped up the hot function loaded_feature_path,
+but didn't change the inefficient fundamental algorithm.  Patches
+which did fix the algorithm were rejected because they abandoned the
+existing semantics that $LOAD_PATH and $LOADED_FEATURES can be changed
+by Ruby code or an extension at any time.  This series uses a new idea
+to fix the algorithm while preserving those semantics.
+
+Specifically, 'require' is slow because on each 'require' call:
+
+ * we call loaded_feature_path() for each element of $LOADED_FEATURES
+   to determine if there is a match, which in turn must iterate
+   through the expanded load path, for total time O(#features * #paths).
+   It would be better to use a hash table to find a match in O(1) time.
+
+ * we call rb_get_expanded_load_path(), which allocates a 4099-byte
+   (on my system) buffer for each element of $LOAD_PATH, which causes
+   frequent garbage collection.  It would be better to do each
+   expansion once, keeping a cache of the expanded load path, so that
+   typically we would do no allocation.
+
+Both of these fixes were proposed in TODO LINKS LAST YEAR.  The
+challenge is that the user can change $LOADED_FEATURES or $LOAD_PATH
+at any time, and we need to keep up.  In this patch series, we do so
+without altering $LOADED_FEATURES or $LOAD_PATH themselves -- they
+remain normal Arrays.  Instead, we take advantage of the sharing
+mechanism in the Array implementation to detect, in O(1) time, whether
+they have been changed.  We cause $LOADED_FEATURES to be shared with
+an Array we keep privately in load.c; if anything modifies it, it will
+break the sharing and we will know to rebuild the index.  Similarly
+for $LOAD_PATH and rebuilding the cached expanded load path.
+
+There is one semantic change.  The elements of $LOADED_FEATURES and
+$LOAD_PATH are now forced to be frozen strings.  This causes no
+limitation on the programmer's flexibility -- anything that might have
+been done by mutating a string in either one can be done by
+reassigning that entry of the array instead.  Normal path-munging code
+which only adds and removes elements shouldn't have to change at all
+-- it can add regular strings, and we automatically freeze them.
+
+The patches are in the following sequence:
+
+ * 1 and 2: These add comments and simplify a bit of code.  There is
+   no change in behavior, except possibly for a small speedup.
+
+ * 3, 4, 5: These cache the expanded $LOAD_PATH, keeping a
+   shared-array snapshot to detect changes.  There is no change in
+   behavior other than forcing the entries to frozen strings.
+
+ * 6, 7, 8: These keep a hash-based index of $LOADED_FEATURES.  There
+   is no change in behavior other than forcing the entries to frozen
+   strings, and a large speedup.
+
+-- outline below --
+
+Here are benchmark results.  First, on my company's Rails application,
+where $LOAD_PATH.size is about 200 and $LOADED_FEATURES.size about 2000.
+These are based on Ruby 1.9.2-p290 because that's what it runs on.
+
+                     startup time,
+version                best of 5
+v1_9_2_290              29.190s
+v1_9_2_290+cache        21.696
+v1_9_2_290+index        11.210
+v1_9_2_290+index+cache   7.610
+
+
+
+
+Benchmarks.
+
+(Keep non-dup because orig thread long.)
+
+
+
+=============
+
+Benchmark results:
+
++part1 means v0.8part1, caching expanded load path
++part2 means v0.8part2 aka v0.8partial aka v0.8.1part2,
+   caching expanded load path and indexing loaded features
++partA means v0.8.1part1, indexing loaded features
+
+Starting my company's Rails app (which runs on 1.9.2-p290;
+$LOAD_PATH.size is about 200 and $LOADED_FEATURES.size about 2000):
+
+               best of 5
+v1_9_2_290       29.190 | 32.162 29.680 29.190 33.406 29.400
+v1_9_2_290+part1 21.696 | 24.597 22.125 21.758 22.098 21.696
+v1_9_2_290+partA 11.210 | 11.236 11.401 11.471 11.210 11.357
+v1_9_2_290+part2  7.610 | 10.315  7.639  7.627  7.610  7.647
+
+Requiring N empty files.
+
+N=16000:
+               best of 5
+v1_9_2_290       17.397 | 17.691 17.507 17.558 17.397 17.567
+v1_9_2_290+part1 16.321 | 16.675 16.321 16.392 16.584 16.427
+v1_9_2_290+partA  2.458 |  2.493  2.486  2.575  2.478  2.458
+v1_9_2_290+part2  2.505 |  2.538  2.627  2.505  2.513  2.543
+
+TODO 1.9.3-based
+
