@@ -241,3 +241,11 @@ but here's a nice account of the benchmark suite the Rubinius folks made:
   http://fwiw.heroku.com/articles/2011/05/26/rubiniuss-benchmark-suite/
 Should try it out -- hopefully one of them exercises 'require'.
 
+
+
+10-11
+
+Hello again.  Benchmarking.
+
+tm () { label="$1"; shift; for i in {1..5}; do { time "$@"; } 2>&1; done | perl -lne 'BEGIN { @r = () }; if (/^real\s*(.*)/) { $_ = $1; s/^0m// or die "Big time"; s/s$//; push @r, $_; }; END { sort (my @rs = @r); print ("'"$label"' $rs[0] | ".join(" ", @r)) }'; }
+

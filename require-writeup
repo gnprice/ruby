@@ -57,13 +57,13 @@ The patches are in the following sequence:
  * 1 and 2: These add comments and simplify a bit of code.  There is
    no change in behavior, except possibly for a small speedup.
 
- * 3, 4, 5: These cache the expanded $LOAD_PATH, keeping a
-   shared-array snapshot to detect changes.  There is no change in
-   behavior other than forcing the entries to frozen strings.
-
- * 6, 7, 8: These keep a hash-based index of $LOADED_FEATURES.  There
-   is no change in behavior other than forcing the entries to frozen
+ * 3-6: These keep a hash-based index of $LOADED_FEATURES.  There is
+   no change in behavior other than forcing the entries to frozen
    strings, and a large speedup.
+
+ * 7-9: These cache the expanded $LOAD_PATH, keeping a shared-array
+   snapshot to detect changes.  There is no change in behavior other
+   than forcing the entries to frozen strings, and a further speedup.
 
 -- outline below --
 
