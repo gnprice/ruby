@@ -19,7 +19,9 @@ less code and stricter compatibility than previous patches I've seen.
    (in issue #3924) to add a Hash index alongside $LOADED_FEATURES,
    but for 1.9.3 none were merged; Masaya Tarui committed r31875,
    which mitigated the problem.  This series adds a Hash index,
-   which 
+   and keeps it up to date even if the user modifies $LOADED_FEATURES.
+   This is worth a 40% speedup on a large Rails application, 
+
 
 The problem that 'require' bookkeeping is slow was spotted by Xavier
 Shay last year and discussed at 
@@ -101,7 +103,7 @@ The patches are in the following sequence:
 
 
 Here are benchmark results.  First, on my company's Rails application,
-where $LOAD_PATH.size is about 200 and $LOADED_FEATURES.size about 2000.
+where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.
 
                      startup time,
 version                best of 5
@@ -140,6 +142,7 @@ v1_9_3_194       12.197 | 13.442 12.231 12.197 12.378 12.891
 v1_9_3_194+partA  8.688 |  8.688  8.703  9.582  8.691  8.691
 v1_9_3_194+part2  5.538 |  5.608  5.607  5.538  5.600  5.604
 
+
 Requiring N empty files.
 
 N=16000:
@@ -151,7 +154,7 @@ v1_9_2_290+part2  2.505 |  2.538  2.627  2.505  2.513  2.543
 
 1.9.3.0-1ubuntu2 10.758 | 11.255 10.788 10.885 10.844 10.758
 v1_9_3_194        9.591 |  9.753  9.715  9.591  9.651  9.958
-trunk g9dd9041   10.115 | 10.562 10.200 10.299 10.159 10.115
+trunk g9dd9041   10.115 | 10.562 10.200 10.299 10.159 10.115 (aka r36920)
 trunk+0.8part0   10.078 | 10.831 10.264 10.078 10.255 10.717
 trunk+0.8.2part1  4.363 |  4.542  4.380  4.399  4.404  4.363
 trunk+0.8.2part2  2.984 |  3.175  3.018  2.984  3.018  3.039
