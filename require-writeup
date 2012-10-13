@@ -24,7 +24,12 @@ less code and stricter compatibility than previous patches I've seen.
    and 2.3x on a pure-'require' benchmark.
 
  * Currently each 'require' call runs through $LOAD_PATH and calls
-   rb_file_expand_path() on each element.  
+   rb_file_expand_path() on each element.  Yura Sokolov (funny_falcon)
+   proposed caching this last December in issue #5767, but it wasn't
+   merged.  This series also caches $LOAD_PATH, and keeps the cache up
+   to date with a different, less invasive technique.  The cache takes
+   88 lines of code, and is worth an additional 57% speedup in
+   starting a Rails app and a 46% speedup in pure 'require'.
 
 
 The problem that 'require' bookkeeping is slow was spotted by Xavier
