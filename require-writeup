@@ -5,8 +5,8 @@ Starting a large application in Ruby is slow.  Most of the startup
 time is not spent in the actual work of loading files and running Ruby
 code, but in bookkeeping in the 'require' implementation.  I've
 attached a patch series which makes that bookkeeping much faster.
-These patches speed up one large Rails application's startup by
-approximately 2x, and a pure-'require' benchmark by approximately 3x.
+These patches speed up a large Rails application's startup by 2.2x,
+and a pure-'require' benchmark by 3.4x.
 
 These patches fix two ways in which 'require' is slow.  Both problems
 have been discussed before, but these patches solve the problems with
@@ -20,7 +20,11 @@ less code and stricter compatibility than previous patches I've seen.
    but for 1.9.3 none were merged; Masaya Tarui committed r31875,
    which mitigated the problem.  This series adds a Hash index,
    and keeps it up to date even if the user modifies $LOADED_FEATURES.
-   This is worth a 40% speedup on a large Rails application, 
+   This is worth a 40% speedup on one large Rails application,
+   and 2.3x on a pure-'require' benchmark.
+
+ * Currently each 'require' call runs through $LOAD_PATH and calls
+   rb_file_expand_path() on each element.  
 
 
 The problem that 'require' bookkeeping is slow was spotted by Xavier
@@ -40,7 +44,8 @@ v1_9_3_194+index        8.688
 v1_9_3_194+index+cache  5.538
 
 
-And requiring 16000 empty files, to isolate the performance of 'require':
+And now isolating the performance of 'require', by requiring
+16000 empty files:
 
 version            time, best of 5
 trunk (at r36920)      10.115

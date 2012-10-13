@@ -269,8 +269,8 @@ and the ticket he worked in (which conflates several issues --
 http://bugs.ruby-lang.org/issues/3924
 
 Hmm, discussion of trying to cache expanded LOAD_PATH, in 2012:
-https://bugs.ruby-lang.org/issues/5767
-https://github.com/ruby/ruby/pull/68.patch
+  https://bugs.ruby-lang.org/issues/5767
+  https://github.com/ruby/ruby/pull/68/files
 Hadn't seen that before.  This one is 303 lines and adds a number
 of methods to load_path's singleton class.  Mine is 83 lines.
 (My LOADED_FEATURES index is more code, 241 of which 25 are
@@ -279,6 +279,12 @@ per-commit shortstats.)  Also this doesn't handle mutating the
 strings themselves, AFAICT.  OTOH it invalidates if the cwd
 or the filesystem_encoding change, which I probably should do.
 
+Oh, and that is one of the "falcon" patches -- the poster is
+Yura Sokolov aka funny_falcon.  All four are described at
+  https://gist.github.com/1688857
+Another one is also 'require'-related -- that's
+  https://github.com/ruby/ruby/pull/66
+which keeps $LOADED_FEATURES as a sorted list.
 
 
 Peter Cooper's writeup after the tweak:
