@@ -102,16 +102,12 @@ The patches are in the following sequence:
 
 Here are benchmark results.  First, on my company's Rails application,
 where $LOAD_PATH.size is about 200 and $LOADED_FEATURES.size about 2000.
-These are based on Ruby 1.9.2-p290 because that's what it runs on.
-NO, USE 1.9.3-p194
 
                      startup time,
 version                best of 5
-v1_9_2_290              29.190s
-v1_9_2_290+cache        21.696
-v1_9_2_290+index        11.210
-v1_9_2_290+index+cache   7.610
-
+v1_9_3_194             12.197
+v1_9_3_194+index        8.688
+v1_9_3_194+index+cache  5.538
 
 
 
@@ -129,6 +125,7 @@ Benchmark results:
 +part2 means v0.8part2 aka v0.8partial aka v0.8.1part2,
    caching expanded load path and indexing loaded features
 +partA means v0.8.1part1, indexing loaded features
+(and v0.8.2 is like v0.8.1)
 
 Starting my company's Rails app (which runs on 1.9.2-p290;
 $LOAD_PATH.size is about 200 and $LOADED_FEATURES.size about 2000):
@@ -140,8 +137,8 @@ v1_9_2_290+partA 11.210 | 11.236 11.401 11.471 11.210 11.357
 v1_9_2_290+part2  7.610 | 10.315  7.639  7.627  7.610  7.647
 
 v1_9_3_194       12.197 | 13.442 12.231 12.197 12.378 12.891
+v1_9_3_194+partA  8.688 |  8.688  8.703  9.582  8.691  8.691
 v1_9_3_194+part2  5.538 |  5.608  5.607  5.538  5.600  5.604
-
 
 Requiring N empty files.
 
