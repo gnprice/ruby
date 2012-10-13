@@ -1,6 +1,15 @@
 
 require is slow in its bookkeeping
 
+
+
+
+
+
+
+
+--- wordy version below
+
 Starting a complex Ruby application with many dependencies can be
 quite slow.  A large fraction of the time is spent not in actually
 reading the files, parsing them, or constructing classes and methods,
