@@ -14,7 +14,11 @@ have been discussed before, but these patches solve the problems with
 less code and stricter compatibility than previous patches I've seen.
 
  * Currently we iterate through $LOADED_FEATURES to see if anything
-   matches the newly required feature.  (And each iteration 
+   matches the newly required feature.  Further, each iteration
+   iterates in turn through $LOAD_PATH.  Xavier Shay spotted this
+   problem last year and a series of patches were discussed
+   (in issue #3924) to add a Hash index alongside $LOADED_FEATURES,
+   but for 1.9.3 none were merged.  Instead Masaya Tarui 
 
 The problem that 'require' bookkeeping is slow was spotted by Xavier
 Shay last year and discussed at 
@@ -144,5 +148,6 @@ v1_9_2_290+part2  2.505 |  2.538  2.627  2.505  2.513  2.543
 1.9.3.0-1ubuntu2 10.758 | 11.255 10.788 10.885 10.844 10.758
 v1_9_3_194        9.591 |  9.753  9.715  9.591  9.651  9.958
 trunk g9dd9041   10.115 | 10.562 10.200 10.299 10.159 10.115
+trunk+0.8part0   10.078 | 10.831 10.264 10.078 10.255 10.717
 trunk+0.8.2part1  4.363 |  4.542  4.380  4.399  4.404  4.363
 trunk+0.8.2part2  2.984 |  3.175  3.018  2.984  3.018  3.039
