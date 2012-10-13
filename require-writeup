@@ -31,11 +31,21 @@ less code and stricter compatibility than previous patches I've seen.
    88 lines of code, and is worth an additional 57% speedup in
    starting a Rails app and a 46% speedup in pure 'require'.
 
-In both cases, 
+With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
 
-# stay updated
-# no new methods on singletons etc
-# do require frozen strings
+ * we exactly preserve the semantics of the user modifying $LOAD_PATH
+   or $LOADED_FEATURES;
+
+ * both $LOAD_PATH and $LOADED_FEATURES remain ordinary Arrays, with
+   no singleton methods;
+
+ * we make just one semantic change: each element of $LOAD_PATH and
+   $LOADED_FEATURES is made into a frozen string.  This doesn't limit
+   the flexibility Ruby offers to the programmer in any way; to alter
+   an element of either array, one simply reassigns it to the new
+   value.  Normal path-munging code which only adds and removes
+   elements shouldn't have to change at all -- it can add regular
+   strings, and we automatically freeze them.
 
 
 Here are benchmark results.  First, on my company's Rails application,
