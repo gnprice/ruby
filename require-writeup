@@ -31,12 +31,11 @@ less code and stricter compatibility than previous patches I've seen.
    88 lines of code, and is worth an additional 57% speedup in
    starting a Rails app and a 46% speedup in pure 'require'.
 
+In both cases, 
 
-The problem that 'require' bookkeeping is slow was spotted by Xavier
-Shay last year and discussed at 
-
-
-MORE HERE
+# stay updated
+# no new methods on singletons etc
+# do require frozen strings
 
 
 Here are benchmark results.  First, on my company's Rails application,
