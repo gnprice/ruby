@@ -271,7 +271,10 @@ http://bugs.ruby-lang.org/issues/3924
 Hmm, discussion of trying to cache expanded LOAD_PATH, in 2012:
 https://bugs.ruby-lang.org/issues/5767
 Hadn't seen that before.  This one is 300 lines and adds a number
-of methods to load_path's singleton class.
+of methods to load_path's singleton class.  Mine is 83 lines.
+(The LOADED_FEATURES index is more code, 241 of which 25 are
+shared with the LOAD_PATH cache.  All numbers are sums of
+per-commit shortstats.)
 
 
 Peter Cooper's writeup after the tweak:
