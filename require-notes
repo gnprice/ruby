@@ -270,6 +270,9 @@ http://bugs.ruby-lang.org/issues/3924
 
 Hmm, discussion of trying to cache expanded LOAD_PATH, in 2012:
 https://bugs.ruby-lang.org/issues/5767
+Hadn't seen that before.  This one is 300 lines and adds a number
+of methods to load_path's singleton class.
+
 
 Peter Cooper's writeup after the tweak:
 http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
