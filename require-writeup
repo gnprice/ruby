@@ -27,6 +27,27 @@ The problem that 'require' bookkeeping is slow was spotted by Xavier
 Shay last year and discussed at 
 
 
+MORE HERE
+
+
+Here are benchmark results.  First, on my company's Rails application,
+where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.
+
+                    startup time,
+version               best of 5
+v1_9_3_194             12.197
+v1_9_3_194+index        8.688
+v1_9_3_194+index+cache  5.538
+
+
+And requiring 16000 empty files, to isolate the performance of 'require':
+
+version            time, best of 5
+trunk (at r36920)      10.115
+trunk+index             4.363
+trunk+index+cache       2.984
+
+
 
 
 
@@ -101,19 +122,6 @@ The patches are in the following sequence:
 
 -- outline below --
 
-
-Here are benchmark results.  First, on my company's Rails application,
-where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.
-
-                     startup time,
-version                best of 5
-v1_9_3_194             12.197
-v1_9_3_194+index        8.688
-v1_9_3_194+index+cache  5.538
-
-
-
-Benchmarks.
 
 (Keep non-dup because orig thread long.)
 
