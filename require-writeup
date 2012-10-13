@@ -46,32 +46,29 @@ With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
    value.  Normal path-munging code which only adds and removes
    elements shouldn't have to change at all.
 
-We use the following technique to keep the cache and the index up to
-date without modifying the methods of $LOADED_FEATURES or $LOAD_PATH
-and with 
-
-WORK HERE
-
-Instead, we take advantage of the sharing
-mechanism in the Array implementation to detect, in O(1) time, whether
-they have been changed.  We cause $LOADED_FEATURES to be shared with
-an Array we keep privately in load.c; if anything modifies it, it will
-break the sharing and we will know to rebuild the index.  Similarly
-for $LOAD_PATH and rebuilding the cached expanded load path.
-
+These patches use the following technique to keep the cache and the
+index up to date without modifying the methods of $LOADED_FEATURES or
+$LOAD_PATH: we take advantage of the sharing mechanism in the Array
+implementation to detect, in O(1) time, whether either array has been
+mutated.  We cause $LOADED_FEATURES to be shared with an Array we keep
+privately in load.c; if anything modifies it, it will break the
+sharing and we will know to rebuild the index.  Similarly for
+$LOAD_PATH.
 
 Here are benchmark results.  First, on my company's Rails application,
-where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.
+where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.  I
+measured the time taken by 'bundle exec rails runner "p 1"'.  These
+are based on the last release rather than trunk because a number of
+gems failed to compile against trunk.
 
-                    startup time,
+                 Rails startup time,
 version               best of 5
 v1_9_3_194             12.197
 v1_9_3_194+index        8.688
 v1_9_3_194+index+cache  5.538
 
-
 And now isolating the performance of 'require', by requiring
-16000 empty files:
+16000 empty files.
 
 version            time, best of 5
 trunk (at r36920)      10.115
