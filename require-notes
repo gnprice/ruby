@@ -284,10 +284,12 @@ Yura Sokolov aka funny_falcon.  All four are described at
   https://gist.github.com/1688857
 Another one is also 'require'-related -- that's
   https://github.com/ruby/ruby/pull/66
-which keeps $LOADED_FEATURES as a sorted list.
+which keeps $LOADED_FEATURES as a sorted list.  This one also
+munges the singleton class, and doesn't handle mutation of strings.
+It is a little shorter than mine, at 178 lines.
 
 
-Peter Cooper's writeup after the tweak:
+Peter Cooper's writeup after Masaya Tarui's tweak:
 http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
 
 
