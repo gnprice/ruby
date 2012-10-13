@@ -18,7 +18,9 @@ less code and stricter compatibility than previous patches I've seen.
    iterates in turn through $LOAD_PATH.  Xavier Shay spotted this
    problem last year and a series of patches were discussed
    (in issue #3924) to add a Hash index alongside $LOADED_FEATURES,
-   but for 1.9.3 none were merged.  Instead Masaya Tarui 
+   but for 1.9.3 none were merged; Masaya Tarui committed r31875,
+   which mitigated the problem.  This series adds a Hash index,
+   which 
 
 The problem that 'require' bookkeeping is slow was spotted by Xavier
 Shay last year and discussed at 
@@ -135,6 +137,10 @@ v1_9_2_290       29.190 | 32.162 29.680 29.190 33.406 29.400
 v1_9_2_290+part1 21.696 | 24.597 22.125 21.758 22.098 21.696
 v1_9_2_290+partA 11.210 | 11.236 11.401 11.471 11.210 11.357
 v1_9_2_290+part2  7.610 | 10.315  7.639  7.627  7.610  7.647
+
+v1_9_3_194       12.197 | 13.442 12.231 12.197 12.378 12.891
+
+
 
 Requiring N empty files.
 
