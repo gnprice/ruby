@@ -57,9 +57,7 @@ $LOAD_PATH.
 
 Here are benchmark results.  First, on my company's Rails application,
 where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.  I
-measured the time taken by 'bundle exec rails runner "p 1"'.  These
-are based on the last release rather than trunk because a number of
-gems failed to compile against trunk.
+measured the time taken by 'bundle exec rails runner "p 1"'.
 
                  Rails startup time,
 version               best of 5
@@ -74,6 +72,11 @@ version            time, best of 5
 trunk (at r36920)      10.115
 trunk+index             4.363
 trunk+index+cache       2.984
+
+(The timings for the Rails application are based on the latest release
+rather than trunk because a number of gems failed to compile against
+trunk for me.)
+
 
 
 
