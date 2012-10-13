@@ -1,6 +1,24 @@
 
 require is slow in its bookkeeping
 
+Starting a large application in Ruby is slow.  Most of the startup
+time is not spent in the actual work of loading files and running Ruby
+code, but in bookkeeping in the 'require' implementation.  I've
+attached a patch series which makes that bookkeeping much faster.
+These patches speed up one large Rails application's startup by
+approximately 4x (against 1.9.2), and a pure-'require' benchmark by
+approximately 3x (against a recent trunk.)
+
+These patches fix two ways in which 'require' is slow.  Both problems
+have been discussed before, but these patches solve the problems with
+less code and stricter compatibility than previous patches I've seen.
+
+ * Currently we iterate through $LOADED_FEATURES to see if anything
+   matches the newly required feature.  (And each iteration 
+
+The problem that 'require' bookkeeping is slow was spotted by Xavier
+Shay last year and discussed at 
+
 
 
 
