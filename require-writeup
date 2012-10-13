@@ -44,11 +44,11 @@ With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
    the flexibility Ruby offers to the programmer in any way; to alter
    an element of either array, one simply reassigns it to the new
    value.  Normal path-munging code which only adds and removes
-   elements shouldn't have to change at all -- it can add regular
-   strings, and we automatically freeze them.
+   elements shouldn't have to change at all.
 
 We use the following technique to keep the cache and the index up to
-date even though 
+date without modifying the methods of $LOADED_FEATURES or $LOAD_PATH
+and with 
 
 WORK HERE
 
