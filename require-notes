@@ -263,6 +263,13 @@ Xavier Shay's original blog post:
 http://rhnh.net/2011/05/28/speeding-up-rails-startup-time
 and pull request:
 https://github.com/ruby/ruby/pull/25
+and the ticket he worked in (which conflates several issues --
+  as reported in 2010 it's about lots of stats, but then it becomes
+  code review hour for Xavier's efforts):
+http://bugs.ruby-lang.org/issues/3924
+
+Hmm, discussion of trying to cache expanded LOAD_PATH, in 2012:
+https://bugs.ruby-lang.org/issues/5767
 
 Peter Cooper's writeup after the tweak:
 http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
