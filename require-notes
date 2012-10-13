@@ -253,3 +253,18 @@ git checkout $COMMIT && git clean -fxd && autoreconf && ./configure --prefix ~/l
 
 v=v1_9_2_290-8-g3d119ea; n=16000; tm $v ~/lib/ruby-$v/bin/ruby -I ../ruby-require-torture -e n=$n'; (1..n).each {|i| require "isolated/#{i}"}'
 
+
+10-12
+
+Recording links from long ago.  Didn't I write these down before?  I
+can't find where I did.
+
+Xavier Shay's original blog post:
+http://rhnh.net/2011/05/28/speeding-up-rails-startup-time
+and pull request:
+https://github.com/ruby/ruby/pull/25
+
+Peter Cooper's writeup after the tweak:
+http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
+
+
