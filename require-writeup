@@ -6,8 +6,7 @@ time is not spent in the actual work of loading files and running Ruby
 code, but in bookkeeping in the 'require' implementation.  I've
 attached a patch series which makes that bookkeeping much faster.
 These patches speed up one large Rails application's startup by
-approximately 4x (against 1.9.2), and a pure-'require' benchmark by
-approximately 3x (against a recent trunk.)
+approximately 2x, and a pure-'require' benchmark by approximately 3x.
 
 These patches fix two ways in which 'require' is slow.  Both problems
 have been discussed before, but these patches solve the problems with
@@ -100,9 +99,11 @@ The patches are in the following sequence:
 
 -- outline below --
 
+
 Here are benchmark results.  First, on my company's Rails application,
 where $LOAD_PATH.size is about 200 and $LOADED_FEATURES.size about 2000.
 These are based on Ruby 1.9.2-p290 because that's what it runs on.
+NO, USE 1.9.3-p194
 
                      startup time,
 version                best of 5
@@ -139,7 +140,7 @@ v1_9_2_290+partA 11.210 | 11.236 11.401 11.471 11.210 11.357
 v1_9_2_290+part2  7.610 | 10.315  7.639  7.627  7.610  7.647
 
 v1_9_3_194       12.197 | 13.442 12.231 12.197 12.378 12.891
-
+v1_9_3_194+part2  5.538 |  5.608  5.607  5.538  5.600  5.604
 
 
 Requiring N empty files.
