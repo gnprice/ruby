@@ -260,7 +260,7 @@ Recording links from long ago.  Didn't I write these down before?  I
 can't find where I did.
 
 Xavier Shay's original blog post:
-http://rhnh.net/2011/05/28/speeding-up-rails-startup-time
+  http://rhnh.net/2011/05/28/speeding-up-rails-startup-time
 and pull request:
 https://github.com/ruby/ruby/pull/25
 and the ticket he worked in (which conflates several issues --
