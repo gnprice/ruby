@@ -78,7 +78,7 @@ rather than trunk because a number of gems failed to compile against
 trunk for me.)
 
 Reviews and comments welcome -- I'm sure there's something I could do
-to make these patches better.  I would love to get some form of them
+to make these patches better.  I hope we can get some form of them
 into trunk before the next release -- my life has been happier since I
 switched to this version because commands in my Rails application all
 run faster now, and I want every Ruby programmer to be happier in the
