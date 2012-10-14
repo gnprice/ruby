@@ -1,5 +1,5 @@
 
-require is slow in its bookkeeping
+require is slow in its bookkeeping; can make Rails startup 2.2x faster
 
 =begin
 Starting a large application in Ruby is slow.  Most of the startup
@@ -67,18 +67,18 @@ and $LOADED_FEATURES.size is 2126.  I measured the time taken by
 'bundle exec rails runner "p 1"'.
 
  .                Rails startup time,
- version               best of 5
- v1_9_3_194             12.197
- v1_9_3_194+index        8.688
- v1_9_3_194+index+cache  5.538
+ version               best of 5        speedup
+ v1_9_3_194             12.197s
+ v1_9_3_194+index        8.688s          1.40x
+ v1_9_3_194+index+cache  5.538s          2.20x
 
 And now isolating the performance of 'require', by requiring
 16000 empty files.
 
- version            time, best of 5
- trunk (at r36920)      10.115
- trunk+index             4.363
- trunk+index+cache       2.984
+ version            time, best of 5     speedup
+ trunk (at r36920)      10.115s
+ trunk+index             4.363s          2.32x
+ trunk+index+cache       2.984s          3.39x
 
 (The timings for the Rails application are based on the latest release
 rather than trunk because a number of gems failed to compile against
