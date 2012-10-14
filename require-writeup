@@ -12,39 +12,39 @@ These patches fix two ways in which 'require' is slow.  Both problems
 have been discussed before, but these patches solve the problems with
 less code and stricter compatibility than previous patches I've seen.
 
- * Currently we iterate through $LOADED_FEATURES to see if anything
-   matches the newly required feature.  Further, each iteration
-   iterates in turn through $LOAD_PATH.  Xavier Shay spotted this
-   problem last year and a series of patches were discussed
-   (in issue #3924) to add a Hash index alongside $LOADED_FEATURES,
-   but for 1.9.3 none were merged; Masaya Tarui committed r31875,
-   which mitigated the problem.  This series adds a Hash index,
-   and keeps it up to date even if the user modifies $LOADED_FEATURES.
-   This is worth a 40% speedup on one large Rails application,
-   and 2.3x on a pure-'require' benchmark.
+* Currently we iterate through $LOADED_FEATURES to see if anything
+  matches the newly required feature.  Further, each iteration
+  iterates in turn through $LOAD_PATH.  Xavier Shay spotted this
+  problem last year and a series of patches were discussed
+  (in Issue #3924) to add a Hash index alongside $LOADED_FEATURES,
+  but for 1.9.3 none were merged; Masaya Tarui committed Revision r31875,
+  which mitigated the problem.  This series adds a Hash index,
+  and keeps it up to date even if the user modifies $LOADED_FEATURES.
+  This is worth a 40% speedup on one large Rails application,
+  and 2.3x on a pure-'require' benchmark.
 
- * Currently each 'require' call runs through $LOAD_PATH and calls
-   rb_file_expand_path() on each element.  Yura Sokolov (funny_falcon)
-   proposed caching this last December in issue #5767, but it wasn't
-   merged.  This series also caches $LOAD_PATH, and keeps the cache up
-   to date with a different, less invasive technique.  The cache takes
-   34 lines of code, and is worth an additional 57% speedup in
-   starting a Rails app and a 46% speedup in pure 'require'.
+* Currently each 'require' call runs through $LOAD_PATH and calls
+  rb_file_expand_path() on each element.  Yura Sokolov (funny_falcon)
+  proposed caching this last December in Issue #5767, but it wasn't
+  merged.  This series also caches $LOAD_PATH, and keeps the cache up
+  to date with a different, less invasive technique.  The cache takes
+  34 lines of code, and is worth an additional 57% speedup in
+  starting a Rails app and a 46% speedup in pure 'require'.
 
 With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
 
- * we exactly preserve the semantics of the user modifying $LOAD_PATH
-   or $LOADED_FEATURES;
+* we exactly preserve the semantics of the user modifying $LOAD_PATH
+  or $LOADED_FEATURES;
 
- * both $LOAD_PATH and $LOADED_FEATURES remain ordinary Arrays, with
-   no singleton methods;
+* both $LOAD_PATH and $LOADED_FEATURES remain ordinary Arrays, with
+  no singleton methods;
 
- * we make just one semantic change: each element of $LOAD_PATH and
-   $LOADED_FEATURES is made into a frozen string.  This doesn't limit
-   the flexibility Ruby offers to the programmer in any way; to alter
-   an element of either array, one simply reassigns it to the new
-   value.  Further, normal path-munging code which only adds and
-   removes elements shouldn't have to change at all.
+* we make just one semantic change: each element of $LOAD_PATH and
+  $LOADED_FEATURES is made into a frozen string.  This doesn't limit
+  the flexibility Ruby offers to the programmer in any way; to alter
+  an element of either array, one simply reassigns it to the new
+  value.  Further, normal path-munging code which only adds and
+  removes elements shouldn't have to change at all.
 
 These patches use the following technique to keep the cache and the
 index up to date without modifying the methods of $LOADED_FEATURES or
@@ -79,16 +79,16 @@ trunk for me.)
 
 There are four patches:
 
-  Patch 1 changes no behavior at all.  It adds comments and simplifies
-  a bit of code to help in understanding why patch 3 is correct.
-  42 lines, most of them comments.
+(1) Patch 1 changes no behavior at all.  It adds comments and
+    simplifies a bit of code to help in understanding why patch 3 is
+    correct.  42 lines, most of them comments.
 
-  Patch 2 adds a function to array.c which will help us tell when
-  $LOAD_PATH or $LOADED_FEATURES has been modified.  17 lines.
+(2) Patch 2 adds a function to array.c which will help us tell when
+    $LOAD_PATH or $LOADED_FEATURES has been modified.  17 lines.
 
-  Patch 3 adds the $LOADED_FEATURES index.  150 lines.
+(3) Patch 3 adds the $LOADED_FEATURES index.  150 lines.
 
-  Patch 4 adds the $LOAD_PATH cache.  34 lines.
+(4) Patch 4 adds the $LOAD_PATH cache.  34 lines.
 
 Reviews and comments welcome -- I'm sure there's something I could do
 to make these patches better.  I hope we can get some form of them
