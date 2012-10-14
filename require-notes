@@ -301,3 +301,12 @@ Here are articles about the upcoming releases, by Peter Cooper:
   http://www.rubyinside.com/ruby-2-0-implementation-work-begins-what-is-ruby-2-0-and-whats-new-5515.html
   http://www.rubyinside.com/ruby-2-0-release-schedule-announced-roll-on-2013-5536.html
 The latter says "October 2012: Feature freeze", so I hope I'm not too late.
+
+
+Ruby 1.9.4 doesn't seem to exist anymore as a concept.  Here's the
+best detailed discussion I found:
+  http://bugs.ruby-lang.org/issues/5056
+but it ends in 2011-08 with no conclusion.  (Bonus: Lucas Nussbaum,
+the Debian maintainer for Ruby, trying and failing to get them to
+make their release/maintenance practices sane.)  Now there is no
+v1_9_4 branch, and I can't target my bug report for 1.9.4.
