@@ -268,7 +268,15 @@ and the ticket he worked in (which conflates several issues --
   code review hour for Xavier's efforts):
 http://bugs.ruby-lang.org/issues/3924
 
-Hmm, discussion of trying to cache expanded LOAD_PATH, in 2012:
+Peter Cooper's writeup after Masaya Tarui's tweak:
+http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
+
+
+Early discussion of the $LOAD_PATH issue, way back in January 2011:
+  http://scoop.simplyexcited.co.uk/2011/03/14/rails-3-benchmarks-startup-time/
+(quoting Yehuda Katz from rails-core in January.)
+
+Discussion of trying to cache expanded LOAD_PATH, in 2012:
   https://bugs.ruby-lang.org/issues/5767
   https://github.com/ruby/ruby/pull/68/files
 Hadn't seen that before.  This one is 303 lines and adds a number
@@ -288,8 +296,5 @@ which keeps $LOADED_FEATURES as a sorted list.  This one also
 munges the singleton class, and doesn't handle mutation of strings.
 It is a little shorter than mine, at 178 lines.
 
-
-Peter Cooper's writeup after Masaya Tarui's tweak:
-http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
 
 
