@@ -28,7 +28,7 @@ less code and stricter compatibility than previous patches I've seen.
    proposed caching this last December in issue #5767, but it wasn't
    merged.  This series also caches $LOAD_PATH, and keeps the cache up
    to date with a different, less invasive technique.  The cache takes
-   88 lines of code, and is worth an additional 57% speedup in
+   34 lines of code, and is worth an additional 57% speedup in
    starting a Rails app and a 46% speedup in pure 'require'.
 
 With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
@@ -76,6 +76,19 @@ trunk+index+cache       2.984
 (The timings for the Rails application are based on the latest release
 rather than trunk because a number of gems failed to compile against
 trunk for me.)
+
+There are four patches:
+
+  Patch 1 changes no behavior at all.  It adds comments and simplifies
+  a bit of code to help in understanding why patch 3 is correct.
+  42 lines, most of them comments.
+
+  Patch 2 adds a function to array.c which will help us tell when
+  $LOAD_PATH or $LOADED_FEATURES has been modified.  17 lines.
+
+  Patch 3 adds the $LOADED_FEATURES index.  150 lines.
+
+  Patch 4 adds the $LOAD_PATH cache.  34 lines.
 
 Reviews and comments welcome -- I'm sure there's something I could do
 to make these patches better.  I hope we can get some form of them
