@@ -105,7 +105,7 @@ to make these patches better.  I hope we can get some form of them
 into trunk before the next release.  My life has been happier since I
 switched to this version because commands in my Rails application all
 run faster now, and I want every Ruby programmer to be happier in the
-same way with 2.0 and ideally with 1.9.4.
+same way with 2.0.
 
 =end
 
