@@ -1,6 +1,7 @@
 
 require is slow in its bookkeeping
 
+=begin
 Starting a large application in Ruby is slow.  Most of the startup
 time is not spent in the actual work of loading files and running Ruby
 code, but in bookkeeping in the 'require' implementation.  I've
@@ -31,6 +32,9 @@ less code and stricter compatibility than previous patches I've seen.
   34 lines of code, and is worth an additional 57% speedup in
   starting a Rails app and a 46% speedup in pure 'require'.
 
+
+== Staying Compatible
+
 With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
 
 * we exactly preserve the semantics of the user modifying $LOAD_PATH
@@ -55,9 +59,12 @@ privately in load.c; if anything modifies it, it will break the
 sharing and we will know to rebuild the index.  Similarly for
 $LOAD_PATH.
 
-Here are benchmark results.  First, on my company's Rails application,
-where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.  I
-measured the time taken by 'bundle exec rails runner "p 1"'.
+
+== Benchmarks
+
+First, on my company's Rails application, where $LOAD_PATH.size is 207
+and $LOADED_FEATURES.size is 2126.  I measured the time taken by
+'bundle exec rails runner "p 1"'.
 
  .                Rails startup time,
  version               best of 5
@@ -76,6 +83,9 @@ And now isolating the performance of 'require', by requiring
 (The timings for the Rails application are based on the latest release
 rather than trunk because a number of gems failed to compile against
 trunk for me.)
+
+
+== The Patches
 
 There are four patches:
 
@@ -96,6 +106,8 @@ into trunk before the next release -- my life has been happier since I
 switched to this version because commands in my Rails application all
 run faster now, and I want every Ruby programmer to be happier in the
 same way with 2.0 and ideally with 1.9.4.
+
+=end
 
 
 
