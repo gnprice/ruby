@@ -77,7 +77,12 @@ trunk+index+cache       2.984
 rather than trunk because a number of gems failed to compile against
 trunk for me.)
 
-
+Reviews and comments welcome -- I'm sure there's something I could do
+to make these patches better.  I would love to get some form of them
+into trunk before the next release -- my life has been happier since I
+switched to this version now that commands in my Rails application all
+run faster, and I want every Ruby programmer to be happier in the same
+way with 2.0 and ideally with 1.9.4.
 
 
 
