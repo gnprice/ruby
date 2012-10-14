@@ -87,7 +87,7 @@ trunk for me.)
 
 == The Patches
 
-There are four patches:
+I've attached four patches:
 
 (1) Patch 1 changes no behavior at all.  It adds comments and
     simplifies a bit of code to help in understanding why patch 3 is
@@ -102,7 +102,7 @@ There are four patches:
 
 Reviews and comments welcome -- I'm sure there's something I could do
 to make these patches better.  I hope we can get some form of them
-into trunk before the next release -- my life has been happier since I
+into trunk before the next release.  My life has been happier since I
 switched to this version because commands in my Rails application all
 run faster now, and I want every Ruby programmer to be happier in the
 same way with 2.0 and ideally with 1.9.4.
