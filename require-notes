@@ -297,4 +297,7 @@ munges the singleton class, and doesn't handle mutation of strings.
 It is a little shorter than mine, at 178 lines.
 
 
-
+Here are articles about the upcoming releases, by Peter Cooper:
+  http://www.rubyinside.com/ruby-2-0-implementation-work-begins-what-is-ruby-2-0-and-whats-new-5515.html
+  http://www.rubyinside.com/ruby-2-0-release-schedule-announced-roll-on-2013-5536.html
+The latter says "October 2012: Feature freeze", so I hope I'm not too late.

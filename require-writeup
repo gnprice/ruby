@@ -43,8 +43,8 @@ With both the $LOADED_FEATURES index and the $LOAD_PATH cache,
    $LOADED_FEATURES is made into a frozen string.  This doesn't limit
    the flexibility Ruby offers to the programmer in any way; to alter
    an element of either array, one simply reassigns it to the new
-   value.  Normal path-munging code which only adds and removes
-   elements shouldn't have to change at all.
+   value.  Further, normal path-munging code which only adds and
+   removes elements shouldn't have to change at all.
 
 These patches use the following technique to keep the cache and the
 index up to date without modifying the methods of $LOADED_FEATURES or
