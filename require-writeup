@@ -59,19 +59,19 @@ Here are benchmark results.  First, on my company's Rails application,
 where $LOAD_PATH.size is 207 and $LOADED_FEATURES.size is 2126.  I
 measured the time taken by 'bundle exec rails runner "p 1"'.
 
-                 Rails startup time,
-version               best of 5
-v1_9_3_194             12.197
-v1_9_3_194+index        8.688
-v1_9_3_194+index+cache  5.538
+ .                Rails startup time,
+ version               best of 5
+ v1_9_3_194             12.197
+ v1_9_3_194+index        8.688
+ v1_9_3_194+index+cache  5.538
 
 And now isolating the performance of 'require', by requiring
 16000 empty files.
 
-version            time, best of 5
-trunk (at r36920)      10.115
-trunk+index             4.363
-trunk+index+cache       2.984
+ version            time, best of 5
+ trunk (at r36920)      10.115
+ trunk+index             4.363
+ trunk+index+cache       2.984
 
 (The timings for the Rails application are based on the latest release
 rather than trunk because a number of gems failed to compile against
