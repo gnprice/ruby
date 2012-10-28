@@ -396,3 +396,36 @@ Oh goodness, and that's all (all of rb_file_expand_path_internal()) under
 That one depends on
   #12. home_dir() if starts with ~
   #13. GetFullPathNameW(), which perhaps (I don't know) depends on cwd
+
+
+
+OK, so
+  #1. rb_safe_level(), aka GET_THREAD()->safe_level.
+  #2. OBJ_TAINTED({$LOAD_PATH[i].to_str})
+  #3. $LOAD_PATH[i].to_str.to_path
+  #4. rb_enc_from_index(ENCODING_GET({$LOAD_PATH[i].to_str}));
+  #5. rb_filesystem_encoding()
+  #6. getenv("HOME") if fname starts with ~/ or == '~'
+  #7. getpwnam(user) if fname matches %r<^~(?<user>[^/]+)(/|$)>
+  #8. getcwdofdrv(*s)
+  #9. getcwd() or getwd()
+  #10. cygwin_conv_path(CCP_POSIX_TO_WIN_A | CCP_RELATIVE, path, w32buf, bufsize);
+  #11. FindFirstFileW(wstr, &wfd);
+  #12. home_dir() if starts with ~
+  #13. GetFullPathNameW(), which perhaps (I don't know) depends on cwd
+If we say screw Windows, and forget people who muck with the path strings we
+have so carefully frozen, we're left with
+  #1. rb_safe_level(), aka GET_THREAD()->safe_level.
+  #5. rb_filesystem_encoding()
+  #6. getenv("HOME") if fname starts with ~/ or == '~'
+  #7. getpwnam(user) if fname matches %r<^~(?<user>[^/]+)(/|$)>
+  #9. getcwd() or getwd()
+I'm comfortable throwing out the rest of those, too, other than
+  #5. rb_filesystem_encoding()
+  #9. getcwd() or getwd()
+So that's good.  Though I'm not sure I want to so glibly say screw Windows.
+
+Hmm, and what is the impact of either the filesystem encoding changing
+or the cwd changing?  What does it do to the expansion of $LOAD_PATH
+and to how the $LOADED_FEATURES lookup then behaves?  (Because that affects
+just how unpleasant it is to not do the same for Windows.)
