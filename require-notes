@@ -389,3 +389,8 @@ Then there's a whole bunch more garbage, mostly to do with Windows.
 Most of it looks pure, but I'm not sure about
   #10. cygwin_conv_path(CCP_POSIX_TO_WIN_A | CCP_RELATIVE, path, w32buf, bufsize);
    and cygwin_conv_to_win32_path(path, w32buf)
+  #11. FindFirstFileW(wstr, &wfd);
+
+Oh goodness, and that's all (all of rb_file_expand_path_internal()) under
+#ifndef _WIN32.  There's another similarly long implementation in win32/file.c.
+
