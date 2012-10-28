@@ -370,4 +370,8 @@ This is a long function.  We have again
   rb_filesystem_encoding();
   rb_enc_get(fname);
   OBJ_TAINTED(fname);
-which are covered above.
+which are covered above.  Then if s[0] == '~' where s = StringValuePtr(fname),
+  rb_home_dir(buf, result)
+so
+  #6. getenv("HOME") if fname starts with ~/ or == '~'
+  #7. getpwnam(user) if fname matches %r<^~(?<user>[^/]+)(/|$)>
