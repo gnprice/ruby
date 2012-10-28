@@ -366,4 +366,8 @@ Then if two executions match to this point, I believe they do through
 the end of check_expand_path_args().
 
 Next, rb_file_expand_path_internal(fname, Qnil, 0, 0, EXPAND_PATH_BUFFER()).
-
+This is a long function.  We have again
+  rb_filesystem_encoding();
+  rb_enc_get(fname);
+  OBJ_TAINTED(fname);
+which are covered above.
