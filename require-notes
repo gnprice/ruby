@@ -393,4 +393,6 @@ Most of it looks pure, but I'm not sure about
 
 Oh goodness, and that's all (all of rb_file_expand_path_internal()) under
 #ifndef _WIN32.  There's another similarly long implementation in win32/file.c.
-
+That one depends on
+  #12. home_dir() if starts with ~
+  #13. GetFullPathNameW(), which perhaps (I don't know) depends on cwd
