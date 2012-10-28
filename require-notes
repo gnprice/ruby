@@ -339,3 +339,16 @@ which is
   rb_get_path_check(fname, rb_safe_level());
 ... urgh, so there's probably our first mutable state:
   #1. rb_safe_level(), aka GET_THREAD()->safe_level.
+Then rb_get_path_check() begins with (where obj is fname)
+  if (insecure_obj_p(obj, level))
+    rb_insecure_operation();
+... so if OBJ_TAINTED(obj) gets set, we could call that.
+It raises an exception.
+  #2. OBJ_TAINTED({$LOAD_PATH[i].to_str})
+Then
+    CONST_ID(to_path, "to_path");
+    tmp = rb_check_funcall(obj, to_path, 0, 0);
+Well, that at least we don't have to worry about... unless someone
+can set to_path on these frozen strings' singletons.  Hmm.
+  #3. $LOAD_PATH[i].to_str.to_path
+
