@@ -310,3 +310,32 @@ but it ends in 2011-08 with no conclusion.  (Bonus: Lucas Nussbaum,
 the Debian maintainer for Ruby, trying and failing to get them to
 make their release/maintenance practices sane.)  Now there is no
 v1_9_4 branch, and I can't target my bug report for 1.9.4.
+
+
+10-27
+
+Hey-hey, people looked at my patches!
+
+Patches 1-3, including the $LOADED_FEATURES index, have been smiled
+upon and have received no criticism yet.  Patch 4, the
+expanded-$LOAD_PATH cache, people have pointed out ought to invalidate
+on chdir, and someone has gone and tried doing that (with too much
+code.)  Also, Yura / funny_falcon pointed out it should invalidate on
+change of filesystem encoding.  OK, that's a small incremental bit of
+code too, but yuck.  How many other things like that might there be?
+
+Let's trace the code and attempt an inventory of mutable state that
+affects the validity of the $LOAD_PATH cache.  We force the elements
+of $LOAD_PATH themselves to be frozen strings, fortunately.
+
+We're caching the result of
+  rb_file_expand_path_fast(fname, Qnil);
+where fname is $LOAD_PATH[i].to_str.  OK, that's
+  check_expand_path_args(fname, Qnil);
+  return rb_file_expand_path_internal(fname, Qnil, 0, 0, EXPAND_PATH_BUFFER());
+The first line there reduces to
+  rb_get_path(fname)
+which is
+  rb_get_path_check(fname, rb_safe_level());
+... urgh, so there's probably our first mutable state:
+  #1. rb_safe_level(), aka GET_THREAD()->safe_level.
