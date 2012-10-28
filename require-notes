@@ -375,3 +375,11 @@ which are covered above.  Then if s[0] == '~' where s = StringValuePtr(fname),
 so
   #6. getenv("HOME") if fname starts with ~/ or == '~'
   #7. getpwnam(user) if fname matches %r<^~(?<user>[^/]+)(/|$)>
+Ifdef DOSISH_DRIVE_LETTER, and has_drive_letter(s), and !isdirsep(s[2]),
+then we have a path with specified drive but not a full path, and we
+may actually call rb_file_expand_path_internal() recursively.  Oh wait!
+No, because dname is nil.  Phew.  Well, we still depend on
+  #8. getcwdofdrv(*s)
+If this is not an absolute path, we depend on
+  #9. my_getcwd()
+(What's wrong with everyone else's getcwd()?  I don't know.)
