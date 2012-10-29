@@ -499,8 +499,18 @@ Otherwise it doesn't do any conversion.  Make that #4' above.
 
 Trying that, I get
   expanded_load_path[0]: enc ISO-8859-1: /home/greg/src/ruby-require-torture/encoding/ni�o
-as hoped for.  But now it can't find the file to load, spoiling the demo.
+as hoped for.  But now it can't find the file to load, spoiling the demo;
+probably because the actual filename in the filesystem is the UTF-8 bytes
+of that string.
 
-
+Now trying the reverse, so the external encoding matches the filename I
+actually created.
+  $ ruby -I ~/src/ruby-require-torture/encoding/niño -e 'puts "A"; $stdout.flush; Encoding.default_internal = Encoding.find("ISO-8859-1"); puts "B"; $stdout.flush; Encoding.default_external = Encoding.find("UTF-8"); puts "C"; $stdout.flush; require "boy"; puts "D"; $stdout.flush; require "boy"' 2>&1 | tail -2
+  $LOADED_FEATURES[10]: enc UTF-8: /home/greg/src/ruby-require-torture/encoding/niño/boy.rb
+  expanded_load_path[0]: enc UTF-8: /home/greg/src/ruby-require-torture/encoding/niño
+Why is the $LOADED_FEATURES entry in UTF-8?  Hmm... in fact the conversion
+I saw in search_required() happens only in some paths, which appear to be when
+we are right in the middle of loading the file already.  Otherwise it comes from
+rb_find_file_safe() or rb_find_file_ext_safe().
 
 Running out of tuits for the night (10-28.)  Will have to study more later.
