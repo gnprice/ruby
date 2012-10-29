@@ -459,7 +459,10 @@ internal encoding.
 
 (*) It means binary, but the string will be labeled as US-ASCII if
 it's all 7-bit.  See rb_external_str_new_with_enc()... err, no, this
-uses a different codepath.  This uses rb_usascii_str_new_cstr(), which ...
+uses a different codepath.  This uses rb_usascii_str_new_cstr(), which
+apparently takes the bytes literally, labels them as US-ASCII, and
+sets the ENC_CODERANGE_7BIT flag.  Nothing seems to check that they
+actually are 7-bit.
 
 OK, so on reading rb_str_conv_enc_opts() (which implements
 rb_str_conv_enc()), what that means is that
