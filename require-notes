@@ -453,6 +453,12 @@ ASCII, or does it mean binary?), and by rb_require_safe() after
 loading a file; in the latter case the argument is supplied by
 search_required(), which uses rb_filesystem_str_new_cstr(),
 which... gee, that's complicated, but it makes the string, calls
-rb_enc_associate(), and then calls rb_str_conv_enc() from the
-filesystem encoding to the default internal encoding.
+rb_enc_associate() with the filesystem encoding, and then calls
+rb_str_conv_enc() from the filesystem encoding to the default
+internal encoding.
 
+OK, so on reading rb_str_conv_enc_opts() (which implements
+rb_str_conv_enc()), what that means is that
+rb_filesystem_str_new_cstr() takes its bytestring input, interprets it
+as characters per the filesystem encoding, and returns that string
+with the bytes prescribed by the internal encoding and so labeled.
