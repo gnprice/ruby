@@ -249,7 +249,7 @@ Hello again.  Benchmarking.
 
 tm () { label="$1"; shift; for i in {1..5}; do { time "$@"; } 2>&1; done | perl -lne 'BEGIN { @r = () }; if (/^real\s*(.*)/) { $_ = $1; s/^0m// or die "Big time"; s/s$//; push @r, $_; }; END { my @rs = sort @r; print ("'"$label"' $rs[0] | ".join(" ", @r)) }'; }
 
-git checkout $COMMIT && git clean -fxd && autoreconf && ./configure --prefix ~/lib/ruby-$(git describe --tags --always) && make -j12 install
+git checkout $COMMIT && git clean -fxd && autoreconf && ./configure --prefix ~/lib/ruby-$(git describe --tags --always) && make && make -j12 install
 
 v=v1_9_2_290-8-g3d119ea; n=16000; tm $v ~/lib/ruby-$v/bin/ruby -I ../ruby-require-torture -e n=$n'; (1..n).each {|i| require "isolated/#{i}"}'
 
@@ -485,5 +485,10 @@ Hmm.
   $ ruby -Iniño  -e 'Encoding.default_internal = Encoding.find("ISO-8859-1"); require "boy"; require "boy"'
   boy
 So it's not as totally broken as I thought.
+
+Hmm.  With some debugging output added:
+  $LOADED_FEATURES[10]: enc UTF-8: /home/greg/src/ruby-require-torture/encoding/niño/boy.rb
+  expanded_load_path[0]: enc UTF-8: /home/greg/src/ruby-require-torture/encoding/niño
+So expansion is not doing what I think.
 
 Running out of tuits for the night (10-28.)  Will have to study more later.
