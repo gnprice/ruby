@@ -449,7 +449,7 @@ It'd be cool to demonstrate that, against trunk and/or 1.9.3-p194.
 Yes, in fact entries are added to $LOADED_FEATURES by
 rb_provide_feature() only; this is called by rb_provide(), which
 forces its argument to usascii (does that mean it must be really
-ASCII, or does it mean binary?), and by rb_require_safe() after
+ASCII, or does it mean binary? (*)), and by rb_require_safe() after
 loading a file; in the latter case the argument is supplied by
 search_required(), which uses rb_filesystem_str_new_cstr(),
 which... gee, that's complicated, but it makes the string, calls
@@ -457,8 +457,20 @@ rb_enc_associate() with the filesystem encoding, and then calls
 rb_str_conv_enc() from the filesystem encoding to the default
 internal encoding.
 
+(*) It means binary, but the string will be labeled as US-ASCII if
+it's all 7-bit.  See rb_external_str_new_with_enc()... err, no, this
+uses a different codepath.  This uses rb_usascii_str_new_cstr(), which ...
+
 OK, so on reading rb_str_conv_enc_opts() (which implements
 rb_str_conv_enc()), what that means is that
 rb_filesystem_str_new_cstr() takes its bytestring input, interprets it
 as characters per the filesystem encoding, and returns that string
 with the bytes prescribed by the internal encoding and so labeled.
+
+So... $LOAD_PATH expansion converts the path entries into the
+filesystem encoding, and those are the bytes we use in
+loaded_feature_path().  But the bytes of the 'name' passed to
+loaded_feature_path() are in the *internal* encoding.  This is messed
+up even if the encoding settings don't get changed after startup.
+
+
