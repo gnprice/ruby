@@ -476,4 +476,9 @@ loaded_feature_path().  But the bytes of the 'name' passed to
 loaded_feature_path() are in the *internal* encoding.  This is messed
 up even if the encoding settings don't get changed after startup.
 
-
+How to demo?  Let's see:
+ - set internal different from external/filesystem; say UTF-8 and ISO-8859-1
+   > Encoding.default_internal = Encoding.find("ISO-8859-1")
+ - put something nontrivial in $LOAD_PATH
+ - require something from there; something that prints on load
+ - require it again; it should get loaded again
