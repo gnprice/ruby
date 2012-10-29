@@ -361,6 +361,7 @@ and if so (and some other conditions) does
 where the latter arguments are the two sides of that inequality.
 So
   #4. rb_enc_from_index(ENCODING_GET({$LOAD_PATH[i].to_str}));
+  #4'. rb_default_internal_encoding() != NULL (spotted this one later)
   #5. rb_filesystem_encoding()
 Then if two executions match to this point, I believe they do through
 the end of check_expand_path_args().
@@ -404,6 +405,7 @@ OK, so
   #2. OBJ_TAINTED({$LOAD_PATH[i].to_str})
   #3. $LOAD_PATH[i].to_str.to_path
   #4. rb_enc_from_index(ENCODING_GET({$LOAD_PATH[i].to_str}));
+  #4'. rb_default_internal_encoding() != NULL
   #5. rb_filesystem_encoding()
   #6. getenv("HOME") if fname starts with ~/ or == '~'
   #7. getpwnam(user) if fname matches %r<^~(?<user>[^/]+)(/|$)>
@@ -416,11 +418,13 @@ OK, so
 If we say screw Windows, and forget people who muck with the path strings we
 have so carefully frozen, we're left with
   #1. rb_safe_level(), aka GET_THREAD()->safe_level.
+  #4'. rb_default_internal_encoding() != NULL
   #5. rb_filesystem_encoding()
   #6. getenv("HOME") if fname starts with ~/ or == '~'
   #7. getpwnam(user) if fname matches %r<^~(?<user>[^/]+)(/|$)>
   #9. getcwd() or getwd()
 I'm comfortable throwing out the rest of those, too, other than
+  [well, now that I see #4', it's clearly in the same rank as #5]
   #5. rb_filesystem_encoding()
   #9. getcwd() or getwd()
 So that's good.  Though I'm not sure I want to so glibly say screw Windows.
@@ -490,5 +494,8 @@ Hmm.  With some debugging output added:
   $LOADED_FEATURES[10]: enc UTF-8: /home/greg/src/ruby-require-torture/encoding/niño/boy.rb
   expanded_load_path[0]: enc UTF-8: /home/greg/src/ruby-require-torture/encoding/niño
 So expansion is not doing what I think.
+Oh, oh, the issue is that I need to actually set the internal encoding.
+Otherwise it doesn't do any conversion.  Make that #4' above.
+
 
 Running out of tuits for the night (10-28.)  Will have to study more later.
