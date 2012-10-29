@@ -497,5 +497,10 @@ So expansion is not doing what I think.
 Oh, oh, the issue is that I need to actually set the internal encoding.
 Otherwise it doesn't do any conversion.  Make that #4' above.
 
+Trying that, I get
+  expanded_load_path[0]: enc ISO-8859-1: /home/greg/src/ruby-require-torture/encoding/ni�o
+as hoped for.  But now it can't find the file to load, spoiling the demo.
+
+
 
 Running out of tuits for the night (10-28.)  Will have to study more later.
