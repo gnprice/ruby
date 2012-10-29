@@ -435,3 +435,13 @@ against "#{loaded_feature}", we'll need load_path_element and loaded_feature
 to be in the same encoding.  We do the comparison bytewise, so if they're in
 different encodings it will be totally wrong.
 
+But where do the $LOADED_FEATURES entries come from?  Will they not
+get left behind if the filesystem encoding changes?  So we'll have
+entries there in the old encoding, and we'll convert $LOAD_PATH
+entries to the new encoding when expanding them, so they'll be
+compared wrong and generally fail to match.  In conclusion, anyone who
+changes the filesystem encoding after interpreter startup / after any
+encoding-sensitive entries make it into either $LOAD_PATH or
+$LOADED_FEATURES deserves what they get.
+
+It'd be cool to demonstrate that, against trunk and/or 1.9.3-p194.
