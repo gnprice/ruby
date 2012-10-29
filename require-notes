@@ -429,3 +429,9 @@ Hmm, and what is the impact of either the filesystem encoding changing
 or the cwd changing?  What does it do to the expansion of $LOAD_PATH
 and to how the $LOADED_FEATURES lookup then behaves?  (Because that affects
 just how unpleasant it is to not do the same for Windows.)
+
+Well, for the later lookups to correctly match "#{load_path_element}#{feature}"
+against "#{loaded_feature}", we'll need load_path_element and loaded_feature
+to be in the same encoding.  We do the comparison bytewise, so if they're in
+different encodings it will be totally wrong.
+
