@@ -445,3 +445,14 @@ encoding-sensitive entries make it into either $LOAD_PATH or
 $LOADED_FEATURES deserves what they get.
 
 It'd be cool to demonstrate that, against trunk and/or 1.9.3-p194.
+
+Yes, in fact entries are added to $LOADED_FEATURES by
+rb_provide_feature() only; this is called by rb_provide(), which
+forces its argument to usascii (does that mean it must be really
+ASCII, or does it mean binary?), and by rb_require_safe() after
+loading a file; in the latter case the argument is supplied by
+search_required(), which uses rb_filesystem_str_new_cstr(),
+which... gee, that's complicated, but it makes the string, calls
+rb_enc_associate(), and then calls rb_str_conv_enc() from the
+filesystem encoding to the default internal encoding.
+
