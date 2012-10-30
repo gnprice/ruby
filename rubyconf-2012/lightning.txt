@@ -1,0 +1,50 @@
+
+Sketch of lightning talk:
+
+I'm going to talk about a problem, and some progress toward a
+solution.
+
+Ruby is really slow to start up.
+
+ (slide:  (All light-on-black.)
+   Problem: Ruby startup time
+ )
+
+And by Ruby I mean MRI; though if you've used JRuby you know that JVM
+startup is no picnic either.  So an app running on MRI can be really
+slow to start up.  Here's the Rails app that is our frontend at
+Solano Labs:
+
+ (slide: (with 1.9.2-p290; better perh. to redo with latest)
+   $ date; bundle exec rails c
+   Mon Oct 29 18:26:11 PDT 2012
+   Time.now
+   [waiting, waiting...]
+ )
+
+and I would stand here and move on precisely as soon as the prompt
+would come up, but that would take much too long in a lightning talk.
+It's about 36 seconds.
+
+ (slide:
+   [same, and then]
+   Loading development environment (Rails 3.0.17)
+   irb(main):001:0> Time.now
+   => 2012-10-29 18:26:47 -0700
+ )
+
+That really bites when you're trying to get work done.
+
+
+So let's profile.
+
+ ['perf report' output from latest release; and summarize with
+  1-3 percentages]
+
+benchmark, pure require
+
+follow logic of profiles, but I believe then index
+
+then cache
+
+then discuss what's left (mostly GC)
