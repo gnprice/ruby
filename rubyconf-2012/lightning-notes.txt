@@ -123,7 +123,7 @@ key change for that test, which is the practical one.
 
 rb_feature_p simplified for the callsite
       if ((ft = rb_feature_p(ftptr, 0, FALSE, FALSE, &loading)) == 'r')
-but kept coherent:
+but kept coherent (though different!  this doesn't check the extension):
 
   rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
   {
@@ -174,8 +174,9 @@ Simplified to non-code:
       features = /* $LOADED_FEATURES */;
       /* for v in features */ {
  ->       f = StringValuePtr(v);
-          if (strncmp(f, feature, /*feature.size*/) != 0) {
- ->           if (loaded_feature_path(f, /*f.size*/, feature, /*feature.size*/))
-                  return 'u';
-          }
+ ->       if (loaded_feature_path(f, /*f.size*/, feature, /*feature.size*/))
+              return 'u';
       }
+      /* also check get_loading_table() */
+      return 0;
+  }
