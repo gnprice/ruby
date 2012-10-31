@@ -222,3 +222,13 @@ In loaded_feature_path(), it blames a bunch of instructions that come
 before the main $LOAD_PATH loop, and a few in the epilogue.  We don't
 seem to have gotten a single sample in the main loop.
 
+
+v1_9_3_194:
+$ for n in {1,2,4,8,16}000; do tm $n ruby -I ~/src/ruby-require-torture/isolated -e n=$n'; (1..n).each {|i| require "#{i}"}'; done
+1000 0.115 | 0.152 0.119 0.115 0.167 0.173
+2000 0.286 | 0.309 0.316 0.314 0.286 0.320
+4000 0.838 | 0.838 0.901 0.932 0.842 0.856
+8000 2.775 | 2.775 2.793 2.919 6.561 2.924
+16000 10.677 | 10.677 10.868 10.816 14.708 11.048
+
+
