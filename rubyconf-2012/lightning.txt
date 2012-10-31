@@ -122,8 +122,11 @@ implements the Ruby Kernel method require().  So we're
           type = rb ? 'r' : 's';
  )
 
-It's in load.c, the file that implements 'require'.  It's mostly
-called from this line:
+It's in load.c, the file that implements the 'require' method.
+
+[XXX]
+It's called from
+several places, but mostly from this line:
 
   static int
   search_required(VALUE fname, volatile VALUE *path, int safe_level)
@@ -135,25 +138,21 @@ called from this line:
           return 'r';
 
 and here's what it does:
+[/XXX]
+
+And here's its essential logic:
 
   rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
   {
-      VALUE v, features, p, load_path = 0;
-      const char *f;
-      long len, n;
-      len = strlen(feature);
-      features = get_loaded_features();
-      for (i = 0; i < RARRAY_LEN(features); ++i) {
-          v = RARRAY_PTR(features)[i];
+      features = /* $LOADED_FEATURES aka $" */;
+      /* for v in features */ {
  ->       f = StringValuePtr(v);
-          if ((n = RSTRING_LEN(v)) < len) continue;
-          if (strncmp(f, feature, len) != 0) {
-              if (!load_path) load_path = rb_get_expanded_load_path();
- ->           if (!(p = loaded_feature_path(f, n, feature, len, 0, load_path)))
-                  continue;
-          }
-          return 'u';
-
+ ->       if (loaded_feature_path(f, /*f.size*/, feature, /*feature.size*/))
+              return 'u';
+      }
+      /* also check get_loading_table() */
+      return 0;
+  }
 
 
 follow logic of profiles, but I believe then index
