@@ -180,3 +180,15 @@ Simplified to non-code:
       /* also check get_loading_table() */
       return 0;
   }
+
+
+Where is StringValuePtr() spending all that time?
+'perf annotate' FTW.
+
+
+
+         :            return BUILTIN_TYPE(obj);
+   10.16 :         8112868:       mov    (%edx),%ecx
+   36.95 :         811286a:       mov    %edx,%eax
+    0.00 :         811286c:       mov    %ecx,%esi
+    3.23 :         811286e:       and    $0x1f,%esi
