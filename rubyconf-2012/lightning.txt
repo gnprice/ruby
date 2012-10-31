@@ -46,8 +46,21 @@ dependencies:
   $ bundle exec rails runner 'p $LOADED_FEATURES.size'
   2125
 
-What if we just require 2000 files and they're empty?  Nothing could
-be simpler.  
+What if we just require a bunch files and they're empty?  Nothing
+could be simpler.  So how long does that take.
+
+      require N
+     empty files
+
+             time
+     N   (best of 5)
+   2000     0.286s   0.1ms
+   4000     0.838    0.2
+   8000     2.775    0.3
+  16000    10.677    0.7
+
+Well, it's not so bad with 2000 files, but look how fast it's growing.
+
 
 
 So let's profile.
