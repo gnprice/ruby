@@ -91,8 +91,8 @@ So OK, let's make that fast.  What is this function?
 
 [XXX]
   78% (*) rb_feature_p() !
-    78% called by rb_require_safe()
-        called by vm_call_method()
+    78% called by (search_required inlined into) rb_require_safe()
+        (tail-called by rb_f_require(),) called by vm_call_method()
         called by vm_exec_core()
   22% other (including all GC, and some rb_feature_p() I missed)
 
@@ -122,7 +122,7 @@ implements the Ruby Kernel method require().  So we're
           type = rb ? 'r' : 's';
  )
 
-It's in load.c, where 'require' is implemented.
+It's in load.c, where 'require' is implemented.  
 
 
 follow logic of profiles, but I believe then index
