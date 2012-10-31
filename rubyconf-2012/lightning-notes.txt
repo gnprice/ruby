@@ -215,3 +215,8 @@ flag words are scattered all over in memory.
 As for rb_feature_p() itself, 'perf annotate' blames a bunch of
 instructions scattered through the main loop.
 
+
+In loaded_feature_path(), it blames a bunch of instructions that come
+before the main $LOAD_PATH loop, and a few in the epilogue.  We don't
+seem to have gotten a single sample in the main loop.
+
