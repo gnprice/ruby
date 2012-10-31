@@ -36,6 +36,9 @@ It's about 36 seconds.
 That really bites when you're trying to get work done.
 
 
+So let's find out why it's slow and fix it.
+
+
 So let's profile.
 
  ['perf report' output from latest release; and summarize with
