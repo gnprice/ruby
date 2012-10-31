@@ -212,3 +212,6 @@ The PC is a bit of a lie anyway.)  Presumably that's because the
 flag words are scattered all over in memory.
 
 
+As for rb_feature_p() itself, 'perf annotate' blames a bunch of
+instructions scattered through the main loop.
+
