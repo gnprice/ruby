@@ -11,6 +11,8 @@ $ n=10000; time perf record -g ruby -I ~/src/ruby-require-torture -e n=$n'; (1..
 real	0m6.549s
 
 
+$ make -j12 debugflags='-ggdb -pg' ruby
+
 $ perf report -g fractal,5 -d ruby.profile
 [and hit E]
 
