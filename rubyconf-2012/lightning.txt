@@ -122,7 +122,16 @@ implements the Ruby Kernel method require().  So we're
           type = rb ? 'r' : 's';
  )
 
-It's in load.c, where 'require' is implemented.  
+It's in load.c, the file that implements 'require'.  It's mostly
+called from this line:
+
+  static int
+  search_required(VALUE fname, volatile VALUE *path, int safe_level)
+  {
+      /* ... */
+      else if ((ft = rb_feature_p(ftptr, 0, FALSE, FALSE, &loading)) == 'r') {
+          /* ... */
+          return 'r';
 
 
 follow logic of profiles, but I believe then index
