@@ -51,6 +51,38 @@ $ perf report -g fractal,5 -d ruby.profile
            vm_call_method
            vm_exec_core
 
+partly abbreviated:
+
+-  32.16%  ruby  rb_string_value_ptr
+   - rb_string_value_ptr
+      - 88.24% rb_feature_p
+           rb_require_safe
+           vm_call_method
+           vm_exec_core
+           vm_exec
+           rb_yield
+           range_each
+           vm_call_method
+           vm_exec_core
+           vm_exec
+           rb_iseq_eval_main
+           ruby_exec_internal
+           ruby_run_node
+           main
+           __libc_start_main
+      + 11.76% rb_require_safe
+-  27.41%  ruby  rb_feature_p
+   - rb_feature_p
+      + 99.45% rb_require_safe
+      + 0.55% vm_call_method
+-  22.10%  ruby  loaded_feature_path.part.2
+   - loaded_feature_path.part.2
+      + 95.00% rb_feature_p
+      + 5.00% rb_require_safe
++   2.76%  ruby  0x109f0
++   1.50%  ruby  file_expand_path
+
+
 more abbreviated:
 
 -  32.16%  ruby  rb_string_value_ptr
