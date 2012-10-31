@@ -43,6 +43,46 @@ So let's profile.
 
 benchmark, pure require
 
+  $ time ruby -I reqtest -e '(1..10000).each {|i| require "#{i}"}'
+
+Here's what the profiler shows:
+
+ (slide briefly, as a visual rather than to read:
+
+  $ perf record -g ruby ...
+  $ perf report -g fractal,5 -d ruby.profile
+  -  32.16%  ruby  rb_string_value_ptr
+     - rb_string_value_ptr
+        - 88.24% rb_feature_p
+             rb_require_safe
+             vm_call_method
+             vm_exec_core
+             [...]
+             __libc_start_main
+        + 11.76% rb_require_safe
+  -  27.41%  ruby  rb_feature_p
+     - rb_feature_p
+        + 99.45% rb_require_safe
+        + 0.55% vm_call_method
+  -  22.10%  ruby  loaded_feature_path.part.2
+     - loaded_feature_path.part.2
+        + 95.00% rb_feature_p
+        + 5.00% rb_require_safe
+  +   2.76%  ruby  0x109f0
+  +   1.50%  ruby  file_expand_path
+ )
+
+
+
+  78% (*) rb_feature_p() !
+    27% directly
+    28% in rb_string_value_ptr()
+    21% in loaded_feature_path()
+     2% other
+  22% other (including all GC, and some rb_feature_p() I missed)
+
+  (*) an *underestimate*
+
 follow logic of profiles, but I believe then index
 
 then cache
