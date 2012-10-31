@@ -23,7 +23,7 @@ Solano Labs:
  )
 
 and I would stand here and move on precisely as soon as the prompt
-would come up, but that would take much too long in a lightning talk.
+would come up, but that would take much too long for a lightning talk.
 It's about 36 seconds.
 
  (slide:
@@ -71,7 +71,7 @@ Here's what the profiler shows:
   +   1.50%  ruby  file_expand_path
  )
 
-OK, collecting those numbers:
+OK, that's a lot of data.  If you add it up:
 
   78% (*) rb_feature_p() !
     27% directly
@@ -82,8 +82,8 @@ OK, collecting those numbers:
 
   (*) an *underestimate*
 
-Seventy-eight percent of the time, at least, in one function,
-rb_feature_p, either in that function's own code or a couple of
+Seventy-eight percent of the time, at least, is all in one function,
+rb_feature_p, either in that function's own code or in a couple of
 functions it calls.  We're spending more than three-quarters of the
 time just there.
 
@@ -159,7 +159,12 @@ loaded on previous require() calls.  If your Rails app uses a couple
 hundred gems with a couple thousand files, as mine does, then by the
 end of startup this array is two thousand elements long.
 
-And it iterates through this array.  Every time you call 'require'.
+And we iterate through this array.  Every time you call 'require'.
+That's what makes the startup time slow.
+
+
+
+
 
 follow logic of profiles, but I believe then index
 
