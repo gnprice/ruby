@@ -48,7 +48,6 @@ benchmark, pure require
 Here's what the profiler shows:
 
  (slide briefly, as a visual rather than to read:
-
   $ perf record -g ruby ...
   $ perf report -g fractal,5 -d ruby.profile
   -  32.16%  ruby  rb_string_value_ptr
@@ -72,7 +71,7 @@ Here's what the profiler shows:
   +   1.50%  ruby  file_expand_path
  )
 
-
+OK, collecting those numbers:
 
   78% (*) rb_feature_p() !
     27% directly
@@ -82,6 +81,34 @@ Here's what the profiler shows:
   22% other (including all GC, and some rb_feature_p() I missed)
 
   (*) an *underestimate*
+
+Seventy-eight percent of the time, at least, in one function,
+rb_feature_p, either in that function's own code or a couple of
+functions it calls.  We're spending more than three-quarters of the
+time just there.
+
+So OK, let's make that fast.  What is this function?
+
+  load.c:
+
+  static int
+  rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
+  {
+      VALUE v, features, p, load_path = 0;
+      const char *f, *e;
+      long i, len, elen, n;
+      st_table *loading_tbl;
+      st_data_t data;
+      int type;
+
+      if (fn) *fn = 0;
+      if (ext) {
+          elen = strlen(ext);
+          len = strlen(feature) - elen;
+          type = rb ? 'r' : 's';
+
+
+
 
 follow logic of profiles, but I believe then index
 
