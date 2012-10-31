@@ -154,6 +154,12 @@ And here's its essential logic:
       return 0;
   }
 
+It takes $LOADED_FEATURES, which is the array of all the files we've
+loaded on previous require() calls.  If your Rails app uses a couple
+hundred gems with a couple thousand files, as mine does, then by the
+end of startup this array is two thousand elements long.
+
+And it iterates through this array.  Every time you call 'require'.
 
 follow logic of profiles, but I believe then index
 
