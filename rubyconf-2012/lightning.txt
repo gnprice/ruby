@@ -34,15 +34,20 @@ It's about 17 seconds.
  )
 
 That really bites when you're trying to get work done.
+And by the way that's with the latest 1.9.3 release;
+with 1.9.2 it's twice as bad.
 
 
 So let's find out why it's slow and fix it.  First, to make it easier
 to study we'll isolate one thing that shouldn't be slow but is.  My
-Rails app requires about 2000 different files:
+Rails app requires about 2000 different files, including all its
+dependencies:
 
   $ bundle exec rails runner 'p $LOADED_FEATURES.size'
   2125
 
+What if we just require 2000 files and they're empty?  Nothing could
+be simpler.  
 
 
 So let's profile.
