@@ -15,7 +15,7 @@ startup is no picnic either.  So an app running on MRI can be really
 slow to start up.  Here's the Rails app that is our frontend at
 Solano Labs:
 
- (slide: (with 1.9.2-p290; better perh. to redo with latest)
+ (slide: (with 1.9.3-p394, latest)
    $ date; bundle exec rails c
    Mon Oct 29 18:26:11 PDT 2012
    Time.now
