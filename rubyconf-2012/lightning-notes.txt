@@ -69,3 +69,12 @@ more abbreviated:
 
 summarized:
 
+78% rb_feature_p() !
+  27% directly
+  28% in rb_string_value_ptr
+  21% in loaded_feature_path
+   2% other
+22% other
+
+
+3.78% rb_string_value_ptr in rb_require_safe
