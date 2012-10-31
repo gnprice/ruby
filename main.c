@@ -18,6 +18,7 @@
 #ifdef RUBY_DEBUG_ENV
 #include <stdlib.h>
 #endif
+#include <sys/time.h>
 
 int
 main(int argc, char **argv)
@@ -28,6 +29,11 @@ main(int argc, char **argv)
 #ifdef HAVE_LOCALE_H
     setlocale(LC_CTYPE, "");
 #endif
+
+    {
+	struct itimerval itimer = {{0, 0}, {0, 0}};
+	setitimer(ITIMER_PROF, &itimer, NULL);
+    }
 
     ruby_sysinit(&argc, &argv);
     {
