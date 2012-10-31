@@ -182,13 +182,33 @@ Simplified to non-code:
   }
 
 
-Where is StringValuePtr() spending all that time?
-'perf annotate' FTW.
+Where is StringValuePtr() spending all that time?  It's a no-op on
+these values, right?  'perf annotate' FTW.
 
-
-
+  $ perf annotate rb_string_value_ptr
+  [...]
          :            return BUILTIN_TYPE(obj);
    10.16 :         8112868:       mov    (%edx),%ecx
    36.95 :         811286a:       mov    %edx,%eax
     0.00 :         811286c:       mov    %ecx,%esi
     3.23 :         811286e:       and    $0x1f,%esi
+         :
+         :        VALUE
+         :        rb_string_value(volatile VALUE *ptr)
+         :        {
+         :            VALUE s = *ptr;
+         :            if (TYPE(s) != T_STRING) {
+    4.85 :         8112871:       cmp    $0x5,%esi
+    0.00 :         8112874:       jne    811281c <rb_string_value_ptr+0x1c>
+
+Cf. include/ruby/ruby.h:
+
+  #define BUILTIN_TYPE(x) (int)(((struct RBasic*)(x))->flags & T_MASK)
+
+So over half is in just *deciding* that this is already a string.
+(The actual big line is just a register move, preparing to return,
+but I think that must reflect waiting on the load that precedes it.
+The PC is a bit of a lie anyway.)  Presumably that's because the
+flag words are scattered all over in memory.
+
+
