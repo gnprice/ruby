@@ -128,9 +128,10 @@ called from this line:
   static int
   search_required(VALUE fname, volatile VALUE *path, int safe_level)
   {
-      /* ... */
-      else if ((ft = rb_feature_p(ftptr, 0, FALSE, FALSE, &loading)) == 'r') {
-          /* ... */
+      /* side codepaths excluded */
+      char *ftptr, *loading;
+      ftptr = RSTRING_PTR(fname);
+ ->   if ((ft = rb_feature_p(ftptr, 0, FALSE, FALSE, &loading)) == 'r')  <-
           return 'r';
 
 
