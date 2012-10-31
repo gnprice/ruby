@@ -120,3 +120,48 @@ cache -- which cuts allocation way down to middling-bloated -- is the
 key change for that test, which is the practical one.
 
 
+
+rb_feature_p simplified for the callsite
+      if ((ft = rb_feature_p(ftptr, 0, FALSE, FALSE, &loading)) == 'r')
+but kept coherent:
+
+  rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
+  {
+      VALUE v, features, p, load_path = 0;
+      const char *f;
+      long len, n;
+
+      len = strlen(feature);
+      features = get_loaded_features();
+      for (i = 0; i < RARRAY_LEN(features); ++i) {
+          v = RARRAY_PTR(features)[i];
+ ->       f = StringValuePtr(v);
+          if ((n = RSTRING_LEN(v)) < len) continue;
+          if (strncmp(f, feature, len) != 0) {
+              if (!load_path) load_path = rb_get_expanded_load_path();
+ ->           if (!(p = loaded_feature_path(f, n, feature, len, 0, load_path)))
+                  continue;
+          }
+          return 'u';
+      }
+
+And simplified more, still coherent:
+
+  rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
+  {
+      VALUE v, features, load_path = 0;
+      const char *f;
+      long len, n;
+
+      len = strlen(feature);
+      features = get_loaded_features();
+      for (i = 0; i < RARRAY_LEN(features); ++i) {
+          v = RARRAY_PTR(features)[i];
+ ->       f = StringValuePtr(v);
+          if ((n = RSTRING_LEN(v)) < len) continue;
+          if (strncmp(f, feature, len) != 0) {
+              if (!load_path) load_path = rb_get_expanded_load_path();
+ ->           if (loaded_feature_path(f, n, feature, len, 0, load_path))
+                  return 'u';
+          }
+      }
