@@ -99,6 +99,7 @@ more abbreviated:
 +   2.76%  ruby  0x109f0
 +   1.50%  ruby  file_expand_path
 
+
 summarized:
 
 78% rb_feature_p() !
@@ -108,5 +109,14 @@ summarized:
    2% other
 22% other (including all GC, and some rb_feature_p() I missed)
 
-
 3.78% rb_string_value_ptr in rb_require_safe
+
+
+Hmm, interesting.  When I try perf on the 'bundle exec rails runner "p 1"'
+test, the GC dominates.  Unfortunately I can't get that to run with a
+-pg build, so I can't get a call-graph profile, which is the smoking
+gun on allocation.  But that suggests that the expanded-$LOAD_PATH
+cache -- which cuts allocation way down to middling-bloated -- is the
+key change for that test, which is the practical one.
+
+

@@ -102,9 +102,7 @@ Well, the function that calls it is rb_require_safe(), which
 implements the Ruby Kernel method require().  So we're 
 [/XXX]
 
-
-
-
+ (slide, briefly as a visual
   load.c:
 
   static int
@@ -122,8 +120,9 @@ implements the Ruby Kernel method require().  So we're
           elen = strlen(ext);
           len = strlen(feature) - elen;
           type = rb ? 'r' : 's';
+ )
 
-
+It's in load.c, where 'require' is implemented.
 
 
 follow logic of profiles, but I believe then index
