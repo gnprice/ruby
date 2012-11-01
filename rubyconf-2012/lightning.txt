@@ -15,7 +15,9 @@ startup is no picnic either.  So an app running on MRI can be really
 slow to start up.  Here's the Rails app that is our frontend at
 Solano Labs:
 
- (slide: (with 1.9.3-p394, latest)
+ (slide:
+   (with 1.9.3-p394, the current release)
+
    $ date; bundle exec rails c
    Mon Oct 29 18:26:11 PDT 2012
    Time.now
@@ -27,7 +29,7 @@ would come up, but that would take much too long for a lightning talk.
 It's about 17 seconds.
 
  (slide:
-   [same, and then]
+ [same, and then]
    Loading development environment (Rails 3.0.17)
    irb(main):001:0> Time.now
    => 2012-10-29 18:26:28 -0700
@@ -46,8 +48,9 @@ dependencies:
   $ bundle exec rails runner 'p $LOADED_FEATURES.size'
   2125
 
-What if we just require a bunch files and they're empty?  Nothing
-could be simpler.  So how long does that take.
+So suppose we isolate just that bit -- we require a few thousand
+files, and we make the files empty so there's nothing else going on.
+That should be really fast.  Well --
 
       require N
      empty files
@@ -59,7 +62,8 @@ could be simpler.  So how long does that take.
    8000     2.775    0.3
   16000    10.677    0.7
 
-Well, it's not so bad with 2000 files, but look how fast it's growing.
+Gee.  That may not be so bad with 2000 files, but look how fast it's
+growing.  When 
 
 
 
