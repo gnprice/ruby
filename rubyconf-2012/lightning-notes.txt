@@ -231,3 +231,7 @@ $ for n in {1,2,4,8,16,32}000; do tm $n ruby -I ~/src/ruby-require-torture/isola
 8000 2.775 | 2.775 2.793 2.919 6.561 2.924
 16000 10.677 | 10.677 10.868 10.816 14.708 11.048
 32000 42.531 | 43.231 43.540 43.556 44.049 42.531
+
+
+Key bits from my 'index' patch, to maybe show:
+

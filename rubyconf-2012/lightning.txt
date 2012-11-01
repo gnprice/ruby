@@ -131,19 +131,6 @@ time just there.
 
 So OK, let's make that fast.  What is this function?
 
-[XXX]
-  78% (*) rb_feature_p() !
-    78% called by (search_required inlined into) rb_require_safe()
-        (tail-called by rb_f_require(),) called by vm_call_method()
-        called by vm_exec_core()
-  22% other (including all GC, and some rb_feature_p() I missed)
-
-  (*) an *underestimate*
-
-Well, the function that calls it is rb_require_safe(), which
-implements the Ruby Kernel method require().  So we're 
-[/XXX]
-
  (slide, briefly as a visual
   load.c:
 
@@ -164,23 +151,8 @@ implements the Ruby Kernel method require().  So we're
           type = rb ? 'r' : 's';
  )
 
-It's in load.c, the file that implements the 'require' method.
-
-[XXX]
-It's called from
-several places, but mostly from this line:
-
-  static int
-  search_required(VALUE fname, volatile VALUE *path, int safe_level)
-  {
-      /* side codepaths excluded */
-      char *ftptr, *loading;
-      ftptr = RSTRING_PTR(fname);
- ->   if ((ft = rb_feature_p(ftptr, 0, FALSE, FALSE, &loading)) == 'r')
-          return 'r';
-
-and here's what it does:
-[/XXX]
+Here's how it begins.  It's in load.c, which is the file that
+implements the 'require' method.
 
 And here's its essential logic:
 
@@ -197,12 +169,12 @@ And here's its essential logic:
   }
 
 It takes $LOADED_FEATURES, which is the array of all the files we've
-loaded on previous require() calls.  If your Rails app uses a couple
-hundred gems with a couple thousand files, as mine does, then by the
-end of startup this array is two thousand elements long.
+loaded on previous require() calls.  That array is thousands of
+elements long.
 
 And we iterate through this array.  Every time you call 'require'.
-That's what makes the startup time slow.
+That's what makes the startup time slow.  And that's why we slow down
+as we require more files -- because this array gets longer.
 
 
 
