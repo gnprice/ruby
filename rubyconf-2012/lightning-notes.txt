@@ -233,5 +233,22 @@ $ for n in {1,2,4,8,16,32}000; do tm $n ruby -I ~/src/ruby-require-torture/isola
 32000 42.531 | 43.231 43.540 43.556 44.049 42.531
 
 
-Key bits from my 'index' patch, to maybe show:
+Key bits from my 'index' patch, to maybe show.
 
+The patch to the simplified main loop:
+
+  rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
+  {
+      features = /* $LOADED_FEATURES */;
+-     /* for v in features */ {
++     features_index = get_loaded_features_index();
++     this_feature_index = /* features_index[feature] */;
++     /* for i in this_feature_index */ {
+          v = /* features[i] */;
+          f = StringValuePtr(v);
+          if (loaded_feature_path(f, /*f.size*/, feature, /*feature.size*/))
+              return 'u';
+      }
+      /* also check get_loading_table() */
+      return 0;
+  }

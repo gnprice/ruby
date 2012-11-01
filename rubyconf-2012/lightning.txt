@@ -176,6 +176,9 @@ And we iterate through this array.  Every time you call 'require'.
 That's what makes the startup time slow.  And that's why we slow down
 as we require more files -- because this array gets longer.
 
+[discuss the index patch]
+
+
 
 
 
