@@ -55,15 +55,20 @@ That should be really fast.  Well --
       require N
      empty files
 
-             time
-     N   (best of 5)
-   2000     0.286s   0.1ms
-   4000     0.838    0.2
-   8000     2.775    0.3
-  16000    10.677    0.7
+             time     avg. /
+     N   (best of 5)   file
+   2000     0.286s     0.1ms
+   4000     0.838      0.2
+   8000     2.775      0.3
+  16000    10.677      0.7
+  32000    42.531      1.3
 
-Gee.  That may not be so bad with 2000 files, but look how fast it's
-growing.  When 
+Well gee.  First, it shouldn't take a tenth of a millisecond just to
+require an empty file -- that's a hundred thousand nanoseconds, time
+enough to fetch a thousand separate items all the way from main
+memory.  We don't have that much real work to do.  But worse is that
+the more files we get, the slower and slower we run.  We're taking
+quadratic time.  There's no reason this shouldn't be linear time.
 
 
 
