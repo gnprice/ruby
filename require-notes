@@ -530,3 +530,59 @@ re-loading the files -- rather, trying to, and ending up at new paths.
 So yes, anyone who does that deserves what they get.
 
 Now, what about chdir?
+
+
+10-31
+
+I've come to the opinion that anyone who changes any of these after
+the interpreter starts, and relies on $LOAD_PATH's interaction with
+$LOADED_FEATURES, deserves whatever they get.  The current behavior is
+already impossible to defend in that case.  And none of these even
+make sense to change after interpreter startup in the first place
+other than the cwd.
+
+Now the Ruby people don't see that -- in particular Masaya Tarui, the
+core guy who committed the hack optimization last year and seems to be
+the main reviewer on this change, is actually interested in the case
+when *home directories* change.
+
+Home directories.  Change.  You know, because someone ran 'usermod' or
+something.  I've never even dealt with a system where a home directory
+*ever* changes, over decades, after it's assigned.  I guess if you
+have some really awkward volume-provisioning system you could find
+yourself needing to change from /home/vol1/$USER to /home/vol2/$USER
+or the like.  But surely nobody in their right mind tries to keep any
+of that user's processes running before and after the change.
+
+I can only infer he's just blindly following the existing code's logic
+(though seems not to have been as systematic as I -- this is just #6
+and #7 of 14 items in my analysis above) without thinking through what
+it means.
+
+Here he is:
+
+  rb_file_expand_path_fast depends on not only current working
+  directory but also home directories too.  it uses ENV["HOME"] and
+  getpwnam (normally). [...]
+
+  we have some choice. 
+  1) support both ENV and getpwnam.
+  2) support only ENV.
+  3) no support home dirs change.
+  4) accept  (G1)~(G3)  and reject others.
+  5) reject this ticket :-(
+
+  what do you think about this issue?
+  in my mind,  4 > 1 = 2 >>>>>>> 5 > 3 
+
+I appreciate that 5 is after a >>>>>>>, but 3 is my pick.
+
+Anyway, Hiroshi Shirosaki is on it -- he's got patches that tarui
+(username, aka taru-san in a previous comment by another Japanese guy)
+wants him to commit, on top of mine, with just one more change.  So I
+think I will stand back for now, in the interest of getting my fixes
+in.  Maybe I will come back after it's all done, provide a patch with
+a fat negative diffstat, and try to convince them they can let go of
+this particular bit of bug-compatibility with themselves (on a release
+numbered 2.0, for heaven's sake!)
+

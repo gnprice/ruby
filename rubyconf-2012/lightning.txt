@@ -6,7 +6,7 @@ solution.
 
 Ruby is really slow to start up.
 
- (slide:  (All light-on-black.)
+ (slide:  (All slides light-on-black.)
    Problem: Ruby startup time
  )
 
