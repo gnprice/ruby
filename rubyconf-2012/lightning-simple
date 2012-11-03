@@ -1,0 +1,170 @@
+
+
+   $ date; bundle exec rails c
+   Mon Oct 29 18:26:11 PDT 2012
+   Time.now
+   [waiting, waiting...]
+
+
+
+
+
+
+
+
+
+
+
+   $ date; bundle exec rails c
+   Mon Oct 29 18:26:11 PDT 2012
+   Time.now
+   Loading development environment (Rails 3.0.17)
+   irb(main):001:0> Time.now
+   => 2012-10-29 18:26:28 -0700
+
+
+ That's 17 seconds
+
+
+
+
+
+
+  $ bundle exec rails runner 'p $LOADED_FEATURES.size'
+  2125
+
+
+
+
+
+
+
+
+
+
+
+
+
+  $ mkdir reqtest
+  $ for i in {1..10000}; do touch reqtest/$i.rb; done
+
+  $ time ruby -I reqtest -e '(1..10000).each {|i| require "#{i}"}'
+
+
+
+
+
+
+
+
+
+
+
+          require N
+         empty files
+
+             time     avg. /
+     N   (best of 5)   file
+   2000     0.286s     0.1ms
+   4000     0.838      0.2
+   8000     2.775      0.3
+  16000    10.677      0.7
+  32000    42.531      1.3
+
+
+
+
+
+  $ perf record -g ruby -I reqtest -e '(1..10000).each {|i| require "#{i}"}'
+
+We're using the 'perf' tool, which is part of Linux.
+Here's what this profiler shows:
+
+ (slide briefly, as a visual rather than to read:
+  $ perf record -g ruby ...
+  $ perf report -g fractal,5 -d ruby.profile
+  -  32.16%  ruby  rb_string_value_ptr
+     - rb_string_value_ptr
+        - 88.24% rb_feature_p
+             rb_require_safe
+             vm_call_method
+             vm_exec_core
+             [...]
+             __libc_start_main
+        + 11.76% rb_require_safe
+  -  27.41%  ruby  rb_feature_p
+     - rb_feature_p
+        + 99.45% rb_require_safe
+        + 0.55% vm_call_method
+  -  22.10%  ruby  loaded_feature_path.part.2
+     - loaded_feature_path.part.2
+        + 95.00% rb_feature_p
+        + 5.00% rb_require_safe
+  +   2.76%  ruby  0x109f0
+  +   1.50%  ruby  file_expand_path
+ )
+
+OK, that's a lot of data.  If you add it up:
+
+  78% (*) rb_feature_p() !
+    27% directly
+    28% in rb_string_value_ptr()
+    21% in loaded_feature_path()
+     2% other
+  22% other (including all GC, and some rb_feature_p() I missed)
+
+  (*) an *underestimate*
+
+Seventy-eight percent of the time, at least, is all in one function,
+rb_feature_p, either in that function's own code or in a couple of
+functions it calls.  We're spending more than three-quarters of the
+time just there.
+
+So OK, let's make that fast.  What is this function?
+
+ (slide, briefly as a visual
+  load.c:
+
+  static int
+  rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
+  {
+      VALUE v, features, p, load_path = 0;
+      const char *f, *e;
+      long i, len, elen, n;
+      st_table *loading_tbl;
+      st_data_t data;
+      int type;
+
+      if (fn) *fn = 0;
+      if (ext) {
+          elen = strlen(ext);
+          len = strlen(feature) - elen;
+          type = rb ? 'r' : 's';
+ )
+
+Here's how it begins.  It's in load.c, which is the file that
+implements the 'require' method.
+
+And here's its essential logic:
+
+  rb_feature_p(const char *feature, const char *ext, int rb, int expanded, const char **fn)
+  {
+      features = /* $LOADED_FEATURES aka $" */;
+      /* for v in features */ {
+ ->       f = StringValuePtr(v);
+ ->       if (loaded_feature_path(f, /*f.size*/, feature, /*feature.size*/))
+              return 'u';
+      }
+      /* also check get_loading_table() */
+      return 0;
+  }
+
+It takes $LOADED_FEATURES, which is the array of all the files we've
+loaded on previous require() calls.  That array is thousands of
+elements long.
+
+And we iterate through this array.  Every time you call 'require'.
+That's what makes the startup time slow.  And that's why we slow down
+as we require more files -- because this array gets longer.
+
+[discuss the index patch]
