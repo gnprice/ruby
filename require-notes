@@ -586,3 +586,42 @@ a fat negative diffstat, and try to convince them they can let go of
 this particular bit of bug-compatibility with themselves (on a release
 numbered 2.0, for heaven's sake!)
 
+
+11-16
+
+Notes on the blog post:
+
+  Possible directions:
+   - go deeply into how I profiled, spotted slow bits, etc
+     (mention compiling with -pg!) (mention rbenv, etc)
+   - go into what's still slow, why the GC is slow
+   - go deeply into workings of 'require' and my patch
+     (probably less interesting? less generalizable, usable)
+  Also, surely show before-and-after profiles.
+
+  ---
+
+  Two possible takes:
+   - Profiler shows it's the GC; now profile the GC;
+     this is what I actually did, right?  with stack and all, right?
+   - This time it's not the same in benchmark and in app;
+     so study app; gee, that's a mess; and...
+
+  Hmm.  What I actually did was a little complicated -- I added my own
+  instrumentation to gc.c, and then to get stack traces I attached gdb
+  and set breakpoints on the instrumentation.  (See my 'gc-profile'
+  branch.)  Not hard, but complicated to pack into this post.  Maybe I
+  should... end the post here with the observation that the GC is the
+  issue, and promise to follow up with a post about tackling that.  And
+  then before that post, do some work to package up what I did for easy
+  reuse?  Maybe delay that post to... after the Pivotal talk would be
+  excellent, if that turns out to be soon, or otherwise after Boston.RB,
+  and announce and describe the tool there.  Doing so at a talk means I
+  get an opportunity for feedback from representative members of my
+  audience before the public announcement.
+
+  One way to package it up that could be pretty nice is as an option to
+  perf that gathers things up appropriately.  E.g.,
+  --blackbox=function[,function...], to mean to treat that function as a
+  black box, meaning truncate the call stack at any point where it's
+  called.  Then --blackbox=garbage_collect would do nicely.
