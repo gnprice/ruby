@@ -1,4 +1,4 @@
-09-01 (starting notes, long after started work)
+2012-09-01 (starting notes, long after started work)
 
 Big allocations in requiring an empty file.
 Total of 10 4099-byte allocations, and one 8192-byte.
@@ -625,3 +625,17 @@ Notes on the blog post:
   --blackbox=function[,function...], to mean to treat that function as a
   black box, meaning truncate the call stack at any point where it's
   called.  Then --blackbox=garbage_collect would do nicely.
+
+
+2013-02-14
+
+Looking at 2.0.0-rc2 to confirm my fixes are effective in it.  Taking
+recipe from 10-11 with some tweaks.
+
+tm () { label="$1"; shift; for i in {1..5}; do { time "$@"; } 2>&1; done | perl -lne 'BEGIN { @r = () }; if (/^real\s*(.*)/) { $_ = $1; s/^0m// or die "Big time"; s/s$//; push @r, $_; }; END { my @rs = sort @r; print ("'"$label"' $rs[0] | ".join(" ", @r)) }'; }
+
+# This now makes rubyx explicit (clean -fxd is dangerous!)
+# and adds a symlink for rbenv.
+{ cd ~/src/rubyx && git fetch && git checkout $COMMIT && NAME=$(git describe --tags --always) && git clean -fxd && autoreconf && ./configure --prefix ~/lib/ruby-$NAME && make -j12 && make install && ln -s ~/lib/ruby-$NAME ~/.rbenv/versions/$NAME; }
+
+v=v1_9_2_290-8-g3d119ea; n=16000; tm $v ~/lib/ruby-$v/bin/ruby -I ../ruby-require-torture -e n=$n'; (1..n).each {|i| require "isolated/#{i}"}'
