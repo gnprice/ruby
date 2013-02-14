@@ -636,6 +636,7 @@ tm () { label="$1"; shift; for i in {1..5}; do { time "$@"; } 2>&1; done | perl 
 
 # This now makes rubyx explicit (clean -fxd is dangerous!)
 # and adds a symlink for rbenv.
-{ cd ~/src/rubyx && git fetch && git checkout $COMMIT && NAME=$(git describe --tags --always) && git clean -fxd && autoreconf && ./configure --prefix ~/lib/ruby-$NAME && make -j12 && make install && ln -s ~/lib/ruby-$NAME ~/.rbenv/versions/$NAME; }
+COMMIT=...
+time { cd ~/src/rubyx && git fetch && git checkout $COMMIT && NAME=$(git describe --tags --always) && git clean -fxd && autoreconf && ./configure --prefix ~/lib/ruby-$NAME && make -j12 && make install && ln -s ~/lib/ruby-$NAME ~/.rbenv/versions/$NAME; }
 
 v=v1_9_2_290-8-g3d119ea; n=16000; tm $v ~/lib/ruby-$v/bin/ruby -I ../ruby-require-torture -e n=$n'; (1..n).each {|i| require "isolated/#{i}"}'
