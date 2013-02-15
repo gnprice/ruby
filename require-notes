@@ -641,3 +641,18 @@ time { cd ~/src/rubyx && git fetch && git checkout $COMMIT && NAME=$(git describ
 
 # This now uses rbenv; more amenable to tab-completion on the version.
 rbenv shell v2_0_0_rc2; n=16000; tm $(rbenv version-name) ruby -I ../ruby-require-torture -e n=$n'; (1..n).each {|i| require "isolated/#{i}"}'
+
+
+Results:
+
+n=16000
+v2_0_0_rc2 3.821 | 4.547 3.884 3.837 3.821 3.972
+v1_9_3_194 10.010 | 9.945 10.096 10.022 9.994 10.010
+v1_9_3_194-fast-require-v0.8.2part2 2.661 | 2.767 2.791 2.684 2.661 2.673
+
+Hrm.  Not a fluke:
+v2_0_0_rc2 3.918 | 6.045 4.036 4.055 3.921 3.918
+
+Urgh, trying to compare app startup, 'bundle install' says:
+  Bundler is not compatible with Ruby 2.0 or Rubygems 2.0.
+  Please upgrade to Bundler 1.3 or higher.
