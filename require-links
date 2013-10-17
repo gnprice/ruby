@@ -1,0 +1,48 @@
+
+ISSUE 7158 AND DISCUSSION
+-------------------------
+
+My patches:
+http://bugs.ruby-lang.org/issues/7158
+
+Thanks, Luis Lavena!  Bumped my ticket so it got attention.
+http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/48192
+
+A version of the make-it-complicated patch on top
+(may not be the final version):
+https://gist.github.com/3964679#file_0004_fix_compatibility_of_require.patch
+
+
+THE FALCON PATCHES
+------------------
+
+Yura's sorted-$LOADED_FEATURES patch:
+https://bugs.ruby-lang.org/issues/5427
+
+Yura's expanded-$LOAD_PATH-cache patch:
+https://bugs.ruby-lang.org/issues/5767
+
+An early report by Yura of the regression 1.9.1 -> 1.9.2:
+https://bugs.ruby-lang.org/issues/3726
+
+
+THE 1.9.3 CHANGE
+----------------
+
+The main thread:
+http://bugs.ruby-lang.org/issues/3924
+
+A version of Xavier's patch:
+https://gist.github.com/996418
+
+Xavier's blog post:
+http://rhnh.net/2011/05/28/speeding-up-rails-startup-time
+
+Xavier's pull request on GitHub:
+https://github.com/ruby/ruby/pull/25
+
+Peter Cooper's writeup:
+http://www.rubyinside.com/ruby-1-9-3-faster-loading-times-require-4927.html
+
+
+
